@@ -1,3 +1,4 @@
+// MODESWITCH.JS IS A COMPONENT THAT RENDERS A CONTAINER WITH A SWITCH THAT ALLOWS THE USER TO TOGGLE BETWEEN LIGHT AND DARK MODE
 import React from 'react';
 import { Switch, styled, Box } from '@mui/material';
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined';
@@ -45,7 +46,7 @@ const StyledSwitch = styled(Switch)(({ theme }) => ({
     borderRadius: '50%', // Makes the thumb circular
   },
   '& .MuiSwitch-track': {
-    backgroundColor: theme.palette.mode === 'dark' ? '#857DB3 !important' : '#E3A1A1 !important',
+    backgroundColor: theme.palette.mode === 'dark' ? '##6875BA !important' : '#E3A1A1 !important',
     boxShadow: '0 0 10px gray', // Optional: adds shadow for depth
     // border: '1px solid', // Specify the border width and style here
     borderColor: theme.palette.mode === 'dark' ? '#FFFFFF !important' : '#000000 !important', // Specify border colors for dark and light modes

@@ -1,3 +1,4 @@
+// GETTHEME.JS DEFINES THE THEME USING THE MUI MATERIAL STYLES LIBRARY
 import { createTheme } from '@mui/material/styles';
 
 const getTheme = (mode) => createTheme({

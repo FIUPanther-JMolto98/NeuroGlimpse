@@ -1,6 +1,7 @@
+// APP.JS COMPONENT: MAIN ENTRY POINT FOR THE APPLICATION'S FRONT-END CONTENT
 import React from 'react';
 import './App.css';
-import logo from './logo.svg';
+import NeuroGlimpseLogo from './components/NeuroGlimpseLogo/NeuroGlimpseLogo';
 import { ThemeProvider } from '@mui/material/styles';
 import getTheme from './themes/getTheme';
 import ModeSwitch from './components/ModeSwitch/ModeSwitch';
@@ -23,6 +24,7 @@ function App() {
           checked={mode === 'dark'}
           onChange={toggleMode}
         />
+        <NeuroGlimpseLogo style={{ width: '500px', height: '500px' }} />
         <LandingPage />
     </ThemeProvider>
   );

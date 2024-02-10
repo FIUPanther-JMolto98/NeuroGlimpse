@@ -1,0 +1,25 @@
+@keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes rgb-cycle {
+    0%, 100% { fill: rgb(255, 122, 122); }
+    16% { fill: rgb(255, 198, 92); }
+    33% { fill: rgb(109, 255, 109); }
+    50% { fill: rgb(103, 255, 255); }
+    66% { fill: rgb(107, 107, 255); }
+    83% { fill: rgb(255, 122, 255); }  }
+  
+  .color-cycle {
+    animation: rgb-cycle 5s linear infinite;
+  }  
+
+  #spinning-eye {
+    animation: spin 4s linear infinite, rgb-cycle 5s linear infinite;
+    transform-origin: center;
+  }  

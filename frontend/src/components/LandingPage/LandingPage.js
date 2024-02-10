@@ -1,7 +1,8 @@
-// In src/components/LandingPage.js
+// LANDING PAGE COMPONENT/WEBPAGE FOR THE REACT APPLICATION
 import React from 'react';
 import { Typography, Button, AppBar, Toolbar, Container } from '@mui/material';
 import '../../styles/acrylicEffect.css'
+import NeuroGlimpseLogo from '../../NeuroGlimpse.svg';
 
 const LandingPage = () => {
   return (
