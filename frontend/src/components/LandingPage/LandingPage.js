@@ -2,7 +2,7 @@
 import React from 'react';
 import { Typography, Button, AppBar, Toolbar, Container } from '@mui/material';
 import '../../styles/acrylicEffect.css'
-import NeuroGlimpseLogo from '../../NeuroGlimpse.svg';
+import NeuroGlimpseLogo from '../NeuroGlimpseLogo/NeuroGlimpseLogo';
 
 const LandingPage = () => {
   return (
@@ -10,21 +10,18 @@ const LandingPage = () => {
       <AppBar position="static">
         {/* <Toolbar>
           <Typography variant="h5">
-            NeuroGlimpse
           </Typography>
         </Toolbar> */}
       </AppBar>
-      <Container maxWidth="sm" style={{ marginTop: '2rem' }}>
-        {/* <Typography variant="h2" component="h1" gutterBottom>
-          NeuroGlimpse 
-        </Typography> */}
-        {/* <Typography variant="h5" component="h2" gutterBottom>
-          Dive into the world of NLP with NeuroGlimpse.
-        </Typography> */}
-        {/* <Button variant="contained" color="primary" style={{ marginTop: '1rem' }}>
-          Get Started
-        </Button> */}
-      </Container>
+      <Container maxWidth="sm" style={{ 
+        marginTop: '2rem', 
+        display: 'flex', // Add this
+        flexDirection: 'column', // Add this to align items vertically
+        alignItems: 'center', // Center items horizontally in the container
+        justifyContent: 'center', // Center items vertically if you have a specific height
+        height: '100vh', // Optional: Set a specific height to enable vertical centering
+      }}>
+        <NeuroGlimpseLogo style={{ maxWidth: '100%', height: 'auto' }} />      </Container>
     </div>
   );
 };

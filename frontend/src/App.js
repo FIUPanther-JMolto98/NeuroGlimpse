@@ -24,7 +24,6 @@ function App() {
           checked={mode === 'dark'}
           onChange={toggleMode}
         />
-        <NeuroGlimpseLogo style={{ width: '500px', height: '500px' }} />
         <LandingPage />
     </ThemeProvider>
   );
