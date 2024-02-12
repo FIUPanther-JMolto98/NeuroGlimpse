@@ -17,6 +17,6 @@
   }  
 
   #spinning-eye {
-    animation: spin 4s linear infinite, rgb-cycle 5s linear infinite;
+    animation: spin 5s linear infinite, rgb-cycle 5s linear infinite;
     transform-origin: center;
   } 

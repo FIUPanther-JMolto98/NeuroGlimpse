@@ -2,12 +2,11 @@
 import React from 'react';
 import './App.css';
 import NeuroGlimpseLogo from './components/NeuroGlimpseLogo/NeuroGlimpseLogo';
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider, Typography, Button, AppBar, Toolbar, Container } from '@mui/material';
 import getTheme from './themes/getTheme';
 import ModeSwitch from './components/ModeSwitch/ModeSwitch';
 import CssBaseline from '@mui/material/CssBaseline';
 import LandingPage from './components/LandingPage/LandingPage';
-import Button from '@mui/material/Button';
 
 function App() {
   // MANAGE LIGHT/DARK MODE STATE USING A REACT HOOK
@@ -20,10 +19,14 @@ function App() {
   return (
     <ThemeProvider theme={getTheme(mode)}>
         <CssBaseline />
+        {/* <div style = {{
+          border: '1px solid #FF0000', // Optional: Add a border to visualize the container
+        }}> */}
         <ModeSwitch 
           checked={mode === 'dark'}
           onChange={toggleMode}
         />
+        {/* </div> */}
         <LandingPage />
     </ThemeProvider>
   );

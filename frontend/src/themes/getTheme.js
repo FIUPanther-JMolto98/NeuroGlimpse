@@ -8,7 +8,7 @@ const getTheme = (mode) => createTheme({
       ? {
           // Palette for light mode
           primary: {
-            main: '#556CD6',
+            main: '#556dd6ff',
           },
           secondary: {
             main: '#19857B',

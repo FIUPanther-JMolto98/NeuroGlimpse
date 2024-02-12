@@ -1,0 +1,48 @@
+.typing-animation-container {
+    display: inline-block;
+    align-items: center; /* This ensures vertical alignment in the middle */
+    justify-content: start; /* Aligns content to the start, keeping text and circle close */
+  }
+  
+  .typed-text {
+    font-family: 'Georgia'; /* Example font, adjust as needed */
+    font-size: calc(0.5vw + 0.5vh + 0.5vmin); /* Responsive size based on viewport, adjust formula as needed */
+    color: #ffffff; /* Text color */
+    margin-right: 5px; /* Ensures some space between the text and the circle */
+  }
+  
+.circle {
+    display: inline-block;
+    width: 0.75vw; /* Adjust based on viewport width */
+    height: 0.75vw; /* Keep width and height the same for a circle */
+    margin-left: 0px;
+    border-radius: 50%;
+    animation: rgb 5s linear infinite, pulse 2s linear infinite;
+    }
+
+  @keyframes rgb {
+  30% {
+    background-color: rgb(255, 122, 122);
+  }
+  60% {
+    background-color: rgb(255, 198, 92);
+  }
+  90% {
+    background-color: rgb(103, 255, 255);
+  }
+}
+
+@keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    25% {
+      transform: scale(1.1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    75% {
+      transform: scale(1.1);
+    }
+  }
