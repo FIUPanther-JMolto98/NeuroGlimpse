@@ -8,7 +8,7 @@ const getTheme = (mode) => createTheme({
       ? {
           // Palette for light mode
           primary: {
-            main: '#556dd6ff',
+            main: '#556dd6',
           },
           secondary: {
             main: '#19857B',
@@ -28,9 +28,19 @@ const getTheme = (mode) => createTheme({
           },
           background: {
             default: '#0B0F19', // Example dark mode background
-            paper: '#121212',
+            paper: '#0B0F19',
           },
         }),
+  },
+  components: {
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'transparent',
+          boxShadow: 'none',
+        },
+      },
+    },
   },
   typography: {
     fontFamily: '"Georgia", "Helvetica", "Arial", sans-serif',

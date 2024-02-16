@@ -1,16 +1,25 @@
 // APP.JS COMPONENT: MAIN ENTRY POINT FOR THE APPLICATION'S FRONT-END CONTENT
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 import NeuroGlimpseLogo from './components/NeuroGlimpseLogo/NeuroGlimpseLogo';
+import NeuroGlimpse from './components/NeuroGlimpseLogo/NeuroGlimpse.svg';
 import { ThemeProvider, Typography, Button, AppBar, Toolbar, Container } from '@mui/material';
 import getTheme from './themes/getTheme';
+import TopNavBar from './components/TopNavBar/TopNavBar';
+import TopNavBarButton from './themes/TopNavBarButton';
 import ModeSwitch from './components/ModeSwitch/ModeSwitch';
 import CssBaseline from '@mui/material/CssBaseline';
 import LandingPage from './components/LandingPage/LandingPage';
+import InteractiveWhatIf from './components/InteractiveWhatIf/InteractiveWhatIf';
+import ConfidenceScores from './components/ConfidenceScores/ConfidenceScores';
+import CounterfactualExplanations from './components/CounterfactualExplanations/CounterfactualExplanations';
+import DecisionPathVisualization from './components/DecisionPathVisualization/DecisionPathVisualization';
+import AttentionMechanismInsights from './components/AttentionMechanismInsights/AttentionMechanismInsights';
 
 function App() {
   // MANAGE LIGHT/DARK MODE STATE USING A REACT HOOK
-  const [mode, setMode] = React.useState('light');
+  const [mode, setMode] = React.useState('dark');
   const theme = getTheme(mode);
   const toggleMode = () => {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
@@ -19,15 +28,22 @@ function App() {
   return (
     <ThemeProvider theme={getTheme(mode)}>
         <CssBaseline />
-        {/* <div style = {{
+        <Router>
+          <TopNavBar />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/attention" element={<AttentionMechanismInsights />} />
+          <Route path="/confidence" element={<ConfidenceScores />} />
+          <Route path="/counterfactuals" element={<CounterfactualExplanations />} />
+          <Route path="/decisionpath" element={<DecisionPathVisualization />} />
+          <Route path="/whatif" element={<InteractiveWhatIf />} />
+        </Routes>
+      </Router>
+        <div style = {{
           border: '1px solid #FF0000', // Optional: Add a border to visualize the container
-        }}> */}
-        <ModeSwitch 
-          checked={mode === 'dark'}
-          onChange={toggleMode}
-        />
-        {/* </div> */}
-        <LandingPage />
+        }}>
+        </div>
+        {/* <LandingPage /> */}
     </ThemeProvider>
   );
 }

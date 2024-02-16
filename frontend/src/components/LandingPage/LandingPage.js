@@ -11,7 +11,7 @@ const LandingPage = ({ style }) => {
       display: 'flex', // This centered the <Container> tag
       justifyContent: 'center', // Center horizontally
       alignItems: 'center', // Center vertically
-      // border: '1px solid #FF0000', // Optional: Add a border to visualize the container
+      border: '1px solid #FF0000', // Optional: Add a border to visualize the container
       height: '100vh',
       weight: '100vw',
     }}>
@@ -22,7 +22,7 @@ const LandingPage = ({ style }) => {
         justifyContent: 'center', // Center items vertically if you have a specific height
         width: '50vw',
         height: '50vh', // Optional: Set a specific height to enable vertical centering
-        // border: '1px solid #FF0000', // Optional: Add a border to visualize the container
+        border: '1px solid #FF0000', // Optional: Add a border to visualize the container
       }}>
         <NeuroGlimpseLogo />    
         <TypingAnimation />  
