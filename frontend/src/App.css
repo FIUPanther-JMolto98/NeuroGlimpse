@@ -1,3 +1,19 @@
+/* Customizes the scrollbar track (background) */
+::-webkit-scrollbar {
+  width: 10px; /* Adjust the width of the scrollbar */
+}
+
+/* Customizes the scrollbar handle */
+::-webkit-scrollbar-thumb {
+  background: #888888; /* Handle color */
+  border-radius: 5px; /* Handle border radius */
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Handle color on hover */
+}
+
 .App {
   text-align: center;
 }

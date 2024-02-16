@@ -102,6 +102,7 @@ CUSTOM BUTTON STYLING PER BUTTON TO CHANGE UNDERLINE COLOR ON HOVER
 
 const AttentionButton = styled(Button)({
     position: 'relative', // Required for positioning the pseudo-element
+    textAlign: 'center',
     '&::after': {
       content: '""', // Necessary for pseudo-elements
       position: 'absolute',
@@ -121,6 +122,7 @@ const AttentionButton = styled(Button)({
   });
 const ConfidenceButton = styled(Button)({
     position: 'relative', // Required for positioning the pseudo-element
+    textAlign: 'center',
     '&::after': {
       content: '""', // Necessary for pseudo-elements
       position: 'absolute',
@@ -140,6 +142,7 @@ const ConfidenceButton = styled(Button)({
   });
 const CounterfactualButton = styled(Button)({
     position: 'relative', // Required for positioning the pseudo-element
+    textAlign: 'center',
     '&::after': {
       content: '""', // Necessary for pseudo-elements
       position: 'absolute',
@@ -159,6 +162,7 @@ const CounterfactualButton = styled(Button)({
   });
 const DecisionButton = styled(Button)({
     position: 'relative', // Required for positioning the pseudo-element
+    textAlign: 'center',
     '&::after': {
       content: '""', // Necessary for pseudo-elements
       position: 'absolute',
@@ -178,6 +182,7 @@ const DecisionButton = styled(Button)({
   });
 const WhatIfButton = styled(Button)({
     position: 'relative', // Required for positioning the pseudo-element
+    textAlign: 'center',
     '&::after': {
       content: '""', // Necessary for pseudo-elements
       position: 'absolute',
