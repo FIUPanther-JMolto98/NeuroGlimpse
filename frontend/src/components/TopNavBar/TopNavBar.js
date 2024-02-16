@@ -222,7 +222,7 @@ const TopNavBar = () => {
         </Link>
         </Typography>
         <ThemeProvider theme={attentionButtonTheme}>
-        <AttentionButton color="inherit" component={Link} to="/attention">Attention<br /> Mechanism</AttentionButton>
+        <AttentionButton color="inherit" component={Link} to="/attention">Attention<br /> Mechanisms</AttentionButton>
         </ThemeProvider>
          <ThemeProvider theme={confidenceButtonTheme}>
         <ConfidenceButton color="inherit" component={Link} to="/confidence">Confidence<br /> Scores</ConfidenceButton>
@@ -231,7 +231,7 @@ const TopNavBar = () => {
         <CounterfactualButton color="inherit" component={Link} to="/counterfactuals">Counterfactual<br /> Explanations</CounterfactualButton>
         </ThemeProvider>
         <ThemeProvider theme={decisionButtonTheme}>
-        <DecisionButton color="inherit" component={Link} to="/decisionpath">Decision Path<br /> Visualization</DecisionButton>
+        <DecisionButton color="inherit" component={Link} to="/decisionpath">Decision Path<br /> Visualizations</DecisionButton>
         </ThemeProvider>
         <ThemeProvider theme={whatifsButtonTheme}>
         <WhatIfButton color="inherit" component={Link} to="/whatif">Interactive<br /> What-Ifs</WhatIfButton>
