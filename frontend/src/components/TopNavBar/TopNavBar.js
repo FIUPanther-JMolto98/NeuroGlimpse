@@ -18,7 +18,7 @@ const attentionButtonTheme = createTheme({
         defaultProps: {
           TouchRippleProps: {
             style: {
-              color: '#ff7272', // set your desired ripple color here
+              color: '#ff7272',
             },
           },      
         },
@@ -35,7 +35,7 @@ const confidenceButtonTheme = createTheme({
         defaultProps: {
           TouchRippleProps: {
             style: {
-              color: '#ff5e00', // set your desired ripple color here
+              color: '#ff5e00',
             },
           },      
         },
@@ -52,7 +52,7 @@ const counterfactualButtonTheme = createTheme({
         defaultProps: {
           TouchRippleProps: {
             style: {
-              color: '#ffae00', // set your desired ripple color here
+              color: '#ffae00',
             },
           },      
         },
@@ -69,7 +69,7 @@ const decisionButtonTheme = createTheme({
         defaultProps: {
           TouchRippleProps: {
             style: {
-              color: '#00ff40', // set your desired ripple color here
+              color: '#00ff40',
             },
           },      
         },
@@ -86,7 +86,7 @@ const whatifsButtonTheme = createTheme({
         defaultProps: {
           TouchRippleProps: {
             style: {
-              color: '#00ccff', // set your desired ripple color here
+              color: '#00ccff',
             },
           },      
         },
@@ -212,7 +212,9 @@ const TopNavBar = () => {
     <AppBar position="static" color="transparent" sx={{ boxShadow: 'none' }}>
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
           <NeuroGlimpseLogo height= '100px' width = '100px'/>
+        </Link>
         </Typography>
         <ThemeProvider theme={attentionButtonTheme}>
         <AttentionButton color="inherit" component={Link} to="/attention">Attention<br /> Mechanism</AttentionButton>

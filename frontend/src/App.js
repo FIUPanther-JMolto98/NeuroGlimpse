@@ -40,7 +40,7 @@ function App() {
         </Routes>
       </Router>
         <div style = {{
-          border: '1px solid #FF0000', // Optional: Add a border to visualize the container
+          // border: '1px solid #FF0000', // Optional: Add a border to visualize the container
         }}>
         </div>
         {/* <LandingPage /> */}

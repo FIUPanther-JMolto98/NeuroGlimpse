@@ -37,6 +37,7 @@ const getTheme = (mode) => createTheme({
       styleOverrides: {
         root: {
           backgroundColor: 'transparent',
+          borderBottom: '2px solid #cacaca70',
           boxShadow: 'none',
         },
       },
