@@ -10,7 +10,7 @@ model = BertModel.from_pretrained('bert-base-uncased', output_attentions=True)
 
 @app.route('/')
 def hello_world():
-    return 'Hello, World!'
+    return 'Hello, World from the Flask 🧪 Backend!'
 
 # METHOD TO RECURSIVELY CONVERT TENSORS TO PYTHON LISTS
 def tensor_to_list(tensor):
