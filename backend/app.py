@@ -1,34 +1,38 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from transformers import pipeline
+from transformers import BertTokenizer, BertModel
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all domains
+CORS(app)
 
-# Initialize your model and tokenizer here
-# For example, using a sentiment-analysis pipeline (you'll replace this with whatever you need)
-nlp = pipeline("sentiment-analysis")
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+model = BertModel.from_pretrained('bert-base-uncased', output_attentions=True)
 
 @app.route('/')
 def hello_world():
-    return 'Hello, World from the Flask backend!'
+    return 'Hello, World!'
 
-@app.route('/analyze', methods=['POST'])
-def analyze_text():
-    if request.method == 'POST':
-        # Extract text from the request body
-        data = request.get_json()
-        text = data.get('text')
+# METHOD TO RECURSIVELY CONVERT TENSORS TO PYTHON LISTS
+def tensor_to_list(tensor):
+    return tensor.detach().cpu().tolist()
 
-        if text:
-            # Here, replace with your actual model processing
-            # For example, sentiment analysis (this is just a placeholder)
-            analysis_result = nlp(text)
+@app.route('/attention', methods=['POST'])
+def attention_insights():
+    data = request.get_json()
+    text = data.get('text', '')
 
-            # Format the result as JSON and return
-            return jsonify(analysis_result)
-        else:
-            return jsonify({"error": "No text provided"}), 400
+    if text:
+        inputs = tokenizer(text, return_tensors='pt', add_special_tokens=True)
+        outputs = model(**inputs)
+        # EXTRACT ATTENTION WEIGHTS FROM OUTPUTS
+        attentions = outputs.attentions
+
+        # CONVERT TENSORS TO LISTS VIA DEFINED METHOD
+        attentions_list = [tensor_to_list(attention) for attention in attentions]
+
+        return jsonify({"attentions": attentions_list})
+    else:
+        return jsonify({"error": "No text provided"}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)
