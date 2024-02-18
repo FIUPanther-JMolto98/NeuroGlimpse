@@ -1,33 +1,39 @@
 import React, { useState, useCallback } from 'react';
 import { Box, TextField, Button, CircularProgress, Typography, Grid } from '@mui/material';
 import axios from 'axios'; // Assuming you're using Axios for API calls
+import InputHighlighting from './InputHighlighting';
 import HeatmapVisualization from './HeatmapVisualization';
 import { debounce, set } from 'lodash';
 
 const AttentionMechanismInsights = () => {
   const [inputText, setInputText] = useState('');
   const [attentionData, setAttentionData] = useState(null);
+  const [attentionScores, setAttentionScores] = useState(null);
+  const [tokens, setTokens]= useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Define the function to fetch attention data
   const fetchAttentionData = async (text) => {
     if (text.trim() === '') {
         setAttentionData(null);
+        setTokens([]);
         return;
     }
     setIsLoading(true);
     try {
       const response = await axios.post('http://127.0.0.1:5000/attention', { text }, { headers: { 'Content-Type': 'application/json' }});
-      if (response.data.attentions) {
-        setAttentionData(response.data.attentions);
-      } else {
-        console.log("attentions_list not found in response:", response.data);
-      }
-    } catch (error) {
-      console.error('Error fetching attention data:', error);
+      if (response.data.aggregated_attention_2d && response.data.aggregated_attention_1d && response.data.tokens) {
+        setAttentionData(response.data.aggregated_attention_2d);
+        setAttentionScores(response.data.aggregated_attention_1d);
+        setTokens(response.data.tokens);
+    } else {
+        console.log("This was the response from the API:", response.data);
     }
+} catch (error) {
+    console.error('Error fetching attention data:', error);
+}
     setIsLoading(false);
-  };
+};
 
   // Wrap fetchAttentionData with debounce
   const debouncedFetchAttentionData = useCallback(debounce(fetchAttentionData, 300), []);
@@ -57,34 +63,37 @@ const AttentionMechanismInsights = () => {
   };
 
   return (
-    <Box p={2}>
+  <Box p={2}>
     <Grid container spacing={2}>
-      <Grid item xs={12} md={6}>
+    <Grid item xs={12} md={6}>
         <TextField
-          label="Enter text"
-          variant="outlined"
-          value={inputText}
-          onChange={handleInputChange}
-          fullWidth
+        label="Enter text"
+        variant="outlined"
+        value={inputText}
+        onChange={handleInputChange}
+        fullWidth
         />
-        {/* <Button onClick={handleSubmit} variant="contained" color="primary" sx={{ mt: 1 }}>
-          Visualize Attention
-        </Button> */}
-      </Grid>
-
-      <Grid item xs={12} md={6}>
-        <Grid container spacing={2} direction="column">
-          <Grid item>
-            {/* <Typography variant="h6">Output Text (with Heatmap)</Typography> */}
-            {/* Placeholder for output text with heatmap colors */}
-          </Grid>
-          <Grid item>
-            {/* <Typography variant="h6">Heatmap Visualization</Typography> */}
-            {attentionData ? <HeatmapVisualization attentionData={attentionData} /> : <Typography>No data to visualize.</Typography>}
-          </Grid>
-        </Grid>
-      </Grid>
     </Grid>
+
+    <Grid item xs={12} md={6}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {isLoading ? (
+            <CircularProgress />
+        ) : (
+            tokens && attentionScores && (
+            <InputHighlighting tokens={tokens} attentionScores={attentionScores} />
+            )
+        )}
+        
+        {attentionData && (
+            <div style={{ width: '100%' }}>
+            <HeatmapVisualization attentionData={attentionData} tokens={tokens} />
+            </div>
+        )}
+        </div>
+    </Grid>
+</Grid>
+
     {isLoading && <CircularProgress />}
   </Box>
 );
