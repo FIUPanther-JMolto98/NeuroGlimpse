@@ -63,40 +63,29 @@ const AttentionMechanismInsights = () => {
   };
 
   return (
-  <Box p={2}>
-    <Grid container spacing={2}>
-    <Grid item xs={12} md={6}>
-        <TextField
-        label="Enter text"
-        variant="outlined"
-        value={inputText}
-        onChange={handleInputChange}
-        fullWidth
-        />
-    </Grid>
+    <Box p={2}>
+      <Grid container justifyContent="center" spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            label="Enter text"
+            variant="outlined"
+            value={inputText}
+            onChange={handleInputChange}
+            fullWidth
+          />
+        </Grid>
 
-    <Grid item xs={12} md={6}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        {isLoading ? (
-            <CircularProgress />
-        ) : (
-            tokens && attentionScores && (
+        <Grid item xs={12} md={8} lg={6} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {isLoading ? <CircularProgress /> : tokens && attentionScores && (
             <InputHighlighting tokens={tokens} attentionScores={attentionScores} />
-            )
-        )}
-        
-        {attentionData && (
-            <div style={{ width: '100%' }}>
+          )}
+          {attentionData && (
             <HeatmapVisualization attentionData={attentionData} tokens={tokens} />
-            </div>
-        )}
-        </div>
-    </Grid>
-</Grid>
-
-    {isLoading && <CircularProgress />}
-  </Box>
-);
+          )}
+        </Grid>
+      </Grid>
+    </Box>
+  );
 };
 
 export default AttentionMechanismInsights;

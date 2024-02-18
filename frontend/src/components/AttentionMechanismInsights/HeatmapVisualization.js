@@ -10,8 +10,8 @@ const HeatmapVisualization = ({ attentionData, tokens }) => {
       console.log('Attention Data Received:', scores);
 
       const margin = { top: 40, right: 40, bottom: 80, left: 80 };
-      const width = 600 - margin.left - margin.right;
-      const height = 600 - margin.top - margin.bottom;
+      const width = 750 - margin.left - margin.right;
+      const height = 750 - margin.top - margin.bottom;
 
       d3.select(d3Container.current).selectAll("*").remove();
 
@@ -119,7 +119,7 @@ const HeatmapVisualization = ({ attentionData, tokens }) => {
     }
   }, [attentionData, tokens]);
 
-  return <div ref={d3Container} style={{ display: 'flex', justifyContent: 'center' }} />;
+  return <div ref={d3Container} style={{ display: 'flex', justifyContent: 'center', maxWidth: '800px', margin: 'auto' }} />;
 };
 
 export default HeatmapVisualization;
