@@ -45,11 +45,11 @@ def attention_insights():
         # Convert numpy arrays to lists for JSON serialization
         aggregated_attention_2d_list = aggregated_attention_2d.tolist()
         aggregated_attention_1d_list = aggregated_attention_1d.tolist()
-
+        
         return jsonify({
             "tokens": tokens, 
             "aggregated_attention_2d": final_aggregated_attention_2d.tolist(),
-            "aggregated_attention_1d": aggregated_attention_1d.tolist()  # or aggregated_attention_1d_in.tolist()
+            "aggregated_attention_1d": aggregated_attention_1d.tolist(),  # or aggregated_attention_1d_in.tolist()
         })
     else:
         return jsonify({"error": "No text provided"}), 400
