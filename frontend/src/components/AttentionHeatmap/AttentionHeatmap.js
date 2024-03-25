@@ -43,7 +43,6 @@ const AttentionHeatmap = () => {
   useEffect(() => {
     if (d3Container.current && (attentionData.length > 0 || attentionDataPerHead.length > 0)) {
       const formattedTokens = tokens.map(token => token.replace('Ġ', '_'));
-  
       const containerWidth = d3Container.current.offsetWidth * 2;
       const containerHeight = d3Container.current.offsetHeight / 2;
       const margin = { top: 20, right: 100, bottom: 50, left: 50 };
@@ -113,14 +112,6 @@ const AttentionHeatmap = () => {
           dataToRender = attentionDataPerHead[headIndex] || []; // Safeguard against undefined
         }
       
-      // // Ensure dataToRender is not empty and contains arrays before proceeding
-      // if (dataToRender.length > 0 && Array.isArray(dataToRender[0])) {
-      //   const flatData = dataToRender[0].flat();
-      //   const minValue = Math.min(...flatData);
-      //   const maxValue = Math.max(...flatData);
-      //   colorScale.domain([minValue, maxValue]);
-      // }
-
       // Rectangles for heatmap
       svg.selectAll(null)
         .data(dataToRender[0].flat())
