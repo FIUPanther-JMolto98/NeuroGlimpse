@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { AppBar,  ThemeProvider, createTheme, Toolbar, Typography, Button, Menu, MenuItem, styled } from '@mui/material';
 import { Link } from 'react-router-dom';
 import NeuroGlimpseLogo from '../NeuroGlimpseLogo/NeuroGlimpseLogo';
+import { FaHome } from "react-icons/fa";
+import { MdDashboardCustomize } from "react-icons/md";
 
 /*
 *********************************************************
@@ -26,73 +28,73 @@ const attentionButtonTheme = createTheme({
     },
   });
 
-const confidenceButtonTheme = createTheme({
-    typography: {
-        fontFamily: '"Georgia", "Helvetica", "Arial", sans-serif'
-    },
-    components: {
-      MuiButtonBase: {
-        defaultProps: {
-          TouchRippleProps: {
-            style: {
-              color: '#ff5e00',
-            },
-          },      
-        },
-      },
-    },
-  });
+// const confidenceButtonTheme = createTheme({
+//     typography: {
+//         fontFamily: '"Georgia", "Helvetica", "Arial", sans-serif'
+//     },
+//     components: {
+//       MuiButtonBase: {
+//         defaultProps: {
+//           TouchRippleProps: {
+//             style: {
+//               color: '#ff5e00',
+//             },
+//           },      
+//         },
+//       },
+//     },
+//   });
 
-const counterfactualButtonTheme = createTheme({
-    typography: {
-        fontFamily: '"Georgia", "Helvetica", "Arial", sans-serif'
-    },
-    components: {
-      MuiButtonBase: {
-        defaultProps: {
-          TouchRippleProps: {
-            style: {
-              color: '#ffae00',
-            },
-          },      
-        },
-      },
-    },
-  });
+// const counterfactualButtonTheme = createTheme({
+//     typography: {
+//         fontFamily: '"Georgia", "Helvetica", "Arial", sans-serif'
+//     },
+//     components: {
+//       MuiButtonBase: {
+//         defaultProps: {
+//           TouchRippleProps: {
+//             style: {
+//               color: '#ffae00',
+//             },
+//           },      
+//         },
+//       },
+//     },
+//   });
 
-const decisionButtonTheme = createTheme({
-    typography: {
-        fontFamily: '"Georgia", "Helvetica", "Arial", sans-serif'
-    },
-    components: {
-      MuiButtonBase: {
-        defaultProps: {
-          TouchRippleProps: {
-            style: {
-              color: '#00ff40',
-            },
-          },      
-        },
-      },
-    },
-  });
+// const decisionButtonTheme = createTheme({
+//     typography: {
+//         fontFamily: '"Georgia", "Helvetica", "Arial", sans-serif'
+//     },
+//     components: {
+//       MuiButtonBase: {
+//         defaultProps: {
+//           TouchRippleProps: {
+//             style: {
+//               color: '#00ff40',
+//             },
+//           },      
+//         },
+//       },
+//     },
+//   });
 
-const whatifsButtonTheme = createTheme({
-    typography: {
-        fontFamily: '"Georgia", "Helvetica", "Arial", sans-serif'
-    },
-    components: {
-      MuiButtonBase: {
-        defaultProps: {
-          TouchRippleProps: {
-            style: {
-              color: '#00ccff',
-            },
-          },      
-        },
-      },
-    },
-  });
+// const whatifsButtonTheme = createTheme({
+//     typography: {
+//         fontFamily: '"Georgia", "Helvetica", "Arial", sans-serif'
+//     },
+//     components: {
+//       MuiButtonBase: {
+//         defaultProps: {
+//           TouchRippleProps: {
+//             style: {
+//               color: '#00ccff',
+//             },
+//           },      
+//         },
+//       },
+//     },
+//   });
   
 /*
 *******************************************************************
@@ -120,86 +122,86 @@ const AttentionButton = styled(Button)({
         backgroundColor: '#ff7272', // Underline color on hover
     },
   });
-const ConfidenceButton = styled(Button)({
-    position: 'relative', // Required for positioning the pseudo-element
-    textAlign: 'center',
-    '&::after': {
-      content: '""', // Necessary for pseudo-elements
-      position: 'absolute',
-      bottom: 0, // Position the underline at the bottom of the button
-      left: 0,
-      width: '100%', // Span the full width of the button
-      height: '2px', // Height of the underline
-      backgroundColor: 'transparent', // Start with a transparent background
-      transition: 'background-color 0.3s', // Smooth transition for the background color
-    },
-    '&:hover' : {
-        backgroundColor: 'transparent',
-    },
-    '&:hover::after': {
-        backgroundColor: '#ff5e00', // Underline color on hover
-    },
-  });
-const CounterfactualButton = styled(Button)({
-    position: 'relative', // Required for positioning the pseudo-element
-    textAlign: 'center',
-    '&::after': {
-      content: '""', // Necessary for pseudo-elements
-      position: 'absolute',
-      bottom: 0, // Position the underline at the bottom of the button
-      left: 0,
-      width: '100%', // Span the full width of the button
-      height: '2px', // Height of the underline
-      backgroundColor: 'transparent', // Start with a transparent background
-      transition: 'background-color 0.3s', // Smooth transition for the background color
-    },
-    '&:hover' : {
-        backgroundColor: 'transparent',
-    },
-    '&:hover::after': {
-        backgroundColor: '#ffae00', // Underline color on hover
-    },
-  });
-const DecisionButton = styled(Button)({
-    position: 'relative', // Required for positioning the pseudo-element
-    textAlign: 'center',
-    '&::after': {
-      content: '""', // Necessary for pseudo-elements
-      position: 'absolute',
-      bottom: 0, // Position the underline at the bottom of the button
-      left: 0,
-      width: '100%', // Span the full width of the button
-      height: '2px', // Height of the underline
-      backgroundColor: 'transparent', // Start with a transparent background
-      transition: 'background-color 0.3s', // Smooth transition for the background color
-    },
-    '&:hover' : {
-        backgroundColor: 'transparent',
-    },
-    '&:hover::after': {
-        backgroundColor: '#00ff40', // Underline color on hover
-    },
-  });
-const WhatIfButton = styled(Button)({
-    position: 'relative', // Required for positioning the pseudo-element
-    textAlign: 'center',
-    '&::after': {
-      content: '""', // Necessary for pseudo-elements
-      position: 'absolute',
-      bottom: 0, // Position the underline at the bottom of the button
-      left: 0,
-      width: '100%', // Span the full width of the button
-      height: '2px', // Height of the underline
-      backgroundColor: 'transparent', // Start with a transparent background
-      transition: 'background-color 0.3s', // Smooth transition for the background color
-    },
-    '&:hover' : {
-        backgroundColor: 'transparent',
-    },
-    '&:hover::after': {
-        backgroundColor: '#00ccff', // Underline color on hover
-    },
-  });
+// const ConfidenceButton = styled(Button)({
+//     position: 'relative', // Required for positioning the pseudo-element
+//     textAlign: 'center',
+//     '&::after': {
+//       content: '""', // Necessary for pseudo-elements
+//       position: 'absolute',
+//       bottom: 0, // Position the underline at the bottom of the button
+//       left: 0,
+//       width: '100%', // Span the full width of the button
+//       height: '2px', // Height of the underline
+//       backgroundColor: 'transparent', // Start with a transparent background
+//       transition: 'background-color 0.3s', // Smooth transition for the background color
+//     },
+//     '&:hover' : {
+//         backgroundColor: 'transparent',
+//     },
+//     '&:hover::after': {
+//         backgroundColor: '#ff5e00', // Underline color on hover
+//     },
+//   });
+// const CounterfactualButton = styled(Button)({
+//     position: 'relative', // Required for positioning the pseudo-element
+//     textAlign: 'center',
+//     '&::after': {
+//       content: '""', // Necessary for pseudo-elements
+//       position: 'absolute',
+//       bottom: 0, // Position the underline at the bottom of the button
+//       left: 0,
+//       width: '100%', // Span the full width of the button
+//       height: '2px', // Height of the underline
+//       backgroundColor: 'transparent', // Start with a transparent background
+//       transition: 'background-color 0.3s', // Smooth transition for the background color
+//     },
+//     '&:hover' : {
+//         backgroundColor: 'transparent',
+//     },
+//     '&:hover::after': {
+//         backgroundColor: '#ffae00', // Underline color on hover
+//     },
+//   });
+// const DecisionButton = styled(Button)({
+//     position: 'relative', // Required for positioning the pseudo-element
+//     textAlign: 'center',
+//     '&::after': {
+//       content: '""', // Necessary for pseudo-elements
+//       position: 'absolute',
+//       bottom: 0, // Position the underline at the bottom of the button
+//       left: 0,
+//       width: '100%', // Span the full width of the button
+//       height: '2px', // Height of the underline
+//       backgroundColor: 'transparent', // Start with a transparent background
+//       transition: 'background-color 0.3s', // Smooth transition for the background color
+//     },
+//     '&:hover' : {
+//         backgroundColor: 'transparent',
+//     },
+//     '&:hover::after': {
+//         backgroundColor: '#00ff40', // Underline color on hover
+//     },
+//   });
+// const WhatIfButton = styled(Button)({
+//     position: 'relative', // Required for positioning the pseudo-element
+//     textAlign: 'center',
+//     '&::after': {
+//       content: '""', // Necessary for pseudo-elements
+//       position: 'absolute',
+//       bottom: 0, // Position the underline at the bottom of the button
+//       left: 0,
+//       width: '100%', // Span the full width of the button
+//       height: '2px', // Height of the underline
+//       backgroundColor: 'transparent', // Start with a transparent background
+//       transition: 'background-color 0.3s', // Smooth transition for the background color
+//     },
+//     '&:hover' : {
+//         backgroundColor: 'transparent',
+//     },
+//     '&:hover::after': {
+//         backgroundColor: '#00ccff', // Underline color on hover
+//     },
+//   });
 
 const TopNavBar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -217,14 +219,14 @@ const TopNavBar = () => {
     <AppBar position="static" color="transparent" sx={{ boxShadow: 'none' }}>
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
-          <NeuroGlimpseLogo height= '100px' width = '100px'/>
+        <Link to="/">
+          <FaHome style={{ color: 'white' }} />
         </Link>
         </Typography>
         <ThemeProvider theme={attentionButtonTheme}>
-        <AttentionButton color="inherit" component={Link} to="/attention">Attention<br /> Mechanisms</AttentionButton>
+        <AttentionButton color="inherit" component={Link} to="/dashboard"><MdDashboardCustomize ></MdDashboardCustomize >Dashboard</AttentionButton>
         </ThemeProvider>
-         <ThemeProvider theme={confidenceButtonTheme}>
+        {/* <ThemeProvider theme={confidenceButtonTheme}>
         <ConfidenceButton color="inherit" component={Link} to="/confidence">Confidence<br /> Scores</ConfidenceButton>
         </ThemeProvider>
         <ThemeProvider theme={counterfactualButtonTheme}>
@@ -235,7 +237,7 @@ const TopNavBar = () => {
         </ThemeProvider>
         <ThemeProvider theme={whatifsButtonTheme}>
         <WhatIfButton color="inherit" component={Link} to="/whatif">Interactive<br /> What-Ifs</WhatIfButton>
-        </ThemeProvider>
+        </ThemeProvider> */}
       </Toolbar>
     </AppBar>
   );

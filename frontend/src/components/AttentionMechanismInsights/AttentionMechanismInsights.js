@@ -1,65 +1,51 @@
 import React, { useState, useCallback } from 'react';
-import { Box, TextField, Button, CircularProgress, Typography, Grid } from '@mui/material';
-import axios from 'axios'; // Assuming you're using Axios for API calls
+import { Box, TextField, Button, CircularProgress, Typography, Grid, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import axios from 'axios';
 import InputHighlighting from './InputHighlighting';
 import HeatmapVisualization from './HeatmapVisualization';
-import { debounce, set } from 'lodash';
+import { debounce } from 'lodash';
 
 const AttentionMechanismInsights = () => {
   const [inputText, setInputText] = useState('');
+  const [selectedModel, setSelectedModel] = useState('bert-base-uncased'); // Default model
   const [attentionData, setAttentionData] = useState(null);
   const [attentionScores, setAttentionScores] = useState(null);
-  const [tokens, setTokens]= useState([]);
+  const [tokens, setTokens] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const models = ['bert-base-uncased', 'gpt2', 'roberta-base']; // Example models
 
-  // Define the function to fetch attention data
   const fetchAttentionData = async (text) => {
     if (text.trim() === '') {
-        setAttentionData(null);
-        setTokens([]);
-        return;
+      setAttentionData(null);
+      setTokens([]);
+      return;
     }
     setIsLoading(true);
     try {
-      const response = await axios.post('http://127.0.0.1:5000/attention', { text }, { headers: { 'Content-Type': 'application/json' }});
+      const response = await axios.post('http://127.0.0.1:5000/bert_attention', { text, model: selectedModel }, { headers: { 'Content-Type': 'application/json' }});
+      // Adjust based on your actual API response
       if (response.data.aggregated_attention_2d && response.data.aggregated_attention_1d && response.data.tokens) {
         setAttentionData(response.data.aggregated_attention_2d);
         setAttentionScores(response.data.aggregated_attention_1d);
         setTokens(response.data.tokens);
-    } else {
-        console.log("This was the response from the API:", response.data);
-    }
-} catch (error) {
-    console.error('Error fetching attention data:', error);
-}
-    setIsLoading(false);
-};
-
-  // Wrap fetchAttentionData with debounce
-  const debouncedFetchAttentionData = useCallback(debounce(fetchAttentionData, 300), []);
-
-  // Update handleInputChange to use debouncedFetchAttentionData
-  const handleInputChange = (event) => {
-    const newText = event.target.value;
-    setInputText(newText);
-    debouncedFetchAttentionData(newText);
-  };
-
-  const handleSubmit = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.post('http://127.0.0.1:5000/attention', { text: inputText }, { headers: { 'Content-Type': 'application/json' }});
-      console.log("API Response:", response.data);
-      if(response.data.attentions) {
-        setAttentionData(response.data.attentions); // Adjust based on your actual API response
-        console.log("Set attentionData:", response.data.attentions);
       } else {
-        console.log("attentions_list not found in response:", response.data);
+        console.log("This was the response from the API:", response.data);
       }
     } catch (error) {
       console.error('Error fetching attention data:', error);
     }
     setIsLoading(false);
+  };
+
+  const debouncedFetchAttentionData = useCallback(debounce(fetchAttentionData, 300), [selectedModel]);
+
+  const handleInputChange = (event) => {
+    setInputText(event.target.value);
+    debouncedFetchAttentionData(event.target.value);
+  };
+
+  const handleModelChange = (event) => {
+    setSelectedModel(event.target.value);
   };
 
   return (
@@ -74,7 +60,20 @@ const AttentionMechanismInsights = () => {
             fullWidth
           />
         </Grid>
-
+        <Grid item xs={12}>
+          <FormControl fullWidth>
+            <InputLabel>Model</InputLabel>
+            <Select
+              value={selectedModel}
+              label="Model"
+              onChange={handleModelChange}
+            >
+              {models.map((model) => (
+                <MenuItem key={model} value={model}>{model}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
         <Grid item xs={12} md={8} lg={6} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           {isLoading ? <CircularProgress /> : tokens && attentionScores && (
             <InputHighlighting tokens={tokens} attentionScores={attentionScores} />

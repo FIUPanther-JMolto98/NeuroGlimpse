@@ -8,6 +8,9 @@ import { ThemeProvider, Typography, Button, AppBar, Toolbar, Container } from '@
 import getTheme from './themes/getTheme';
 import TopNavBar from './components/TopNavBar/TopNavBar';
 import TopNavBarButton from './themes/TopNavBarButton';
+import Dashboard from './components/Dashboard/Dashboard';
+import OutputPD from './components/OutputPD/OutputPD';
+import HeatmapVisualization from './components/AttentionHeatmap/AttentionHeatmap';
 import ModeSwitch from './components/ModeSwitch/ModeSwitch';
 import CssBaseline from '@mui/material/CssBaseline';
 import LandingPage from './components/LandingPage/LandingPage';
@@ -16,6 +19,7 @@ import ConfidenceScores from './components/ConfidenceScores/ConfidenceScores';
 import CounterfactualExplanations from './components/CounterfactualExplanations/CounterfactualExplanations';
 import DecisionPathVisualization from './components/DecisionPathVisualization/DecisionPathVisualization';
 import AttentionMechanismInsights from './components/AttentionMechanismInsights/AttentionMechanismInsights';
+import AttentionHeatmap from './components/AttentionHeatmap/AttentionHeatmap';
 
 function App() {
   // MANAGE LIGHT/DARK MODE STATE USING A REACT HOOK
@@ -32,11 +36,14 @@ function App() {
           <TopNavBar />
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/attention" element={<AttentionMechanismInsights />} />
           <Route path="/confidence" element={<ConfidenceScores />} />
           <Route path="/counterfactuals" element={<CounterfactualExplanations />} />
           <Route path="/decisionpath" element={<DecisionPathVisualization />} />
           <Route path="/whatif" element={<InteractiveWhatIf />} />
+          <Route path="/outputpd" element={<OutputPD />} />
+          <Route path="/attnheatmap" element={<AttentionHeatmap />} />
         </Routes>
       </Router>
         <div style = {{

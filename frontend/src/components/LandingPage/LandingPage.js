@@ -27,7 +27,7 @@ const LandingPage = ({ style }) => {
         transform : 'translateY(-15%)',
       }}>
         <NeuroGlimpseLogo />    
-        <TypingAnimation />  
+        <TypingAnimation />
       </Container>
       <Typography
         variant="body2"
