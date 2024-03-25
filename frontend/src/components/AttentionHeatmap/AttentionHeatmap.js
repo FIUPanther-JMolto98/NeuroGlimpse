@@ -9,6 +9,7 @@ const AttentionHeatmap = () => {
   const [inputText, setInputText] = useState('');
   const [selectedModel, setSelectedModel] = useState('GPT2');
   const [attentionData, setAttentionData] = useState([]);
+  const [attentionDataPerHead, setAttentionDataPerHead] = useState([]);
   const [showWeights, setShowWeights] = useState(true);
   const [tokens, setTokens] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +29,8 @@ const AttentionHeatmap = () => {
     setIsLoading(true);
     try {
       const response = await axios.post('http://127.0.0.1:5000/gpt2_attention', { text, averageHeads }, { headers: { 'Content-Type': 'application/json' }});
-      setAttentionData(response.data.attention_matrices || []);
+      setAttentionData(response.data.attention_matrices_average || []);
+      setAttentionDataPerHead(response.data.attention_matrices_per_head || []);
       setTokens(response.data.tokens.map(token => token.replace('Ġ', '')) || []);
     } catch (error) {
       console.error('Error fetching attention data:', error);
@@ -39,7 +41,7 @@ const AttentionHeatmap = () => {
   const debouncedFetchAttentionData = debounce(fetchAttentionData, 300);
 
   useEffect(() => {
-    if (Array.isArray(attentionData[0]) && d3Container.current) {
+    if (d3Container.current && (attentionData.length > 0 || attentionDataPerHead.length > 0)) {
       const formattedTokens = tokens.map(token => token.replace('Ġ', '_'));
   
       const containerWidth = d3Container.current.offsetWidth * 2;
@@ -67,7 +69,7 @@ const AttentionHeatmap = () => {
   
       const colorScale = d3.scaleSequential(d3.interpolateInferno)
         .domain([0, 1]);
-  
+
       // Gradient for the color bar
       const defs = svg.append("defs");
       const linearGradient = defs.append("linearGradient")
@@ -102,10 +104,26 @@ const AttentionHeatmap = () => {
         .attr("y", 0)
         .attr("dy", ".35em")
         .text("1");
-  
+ 
+        let dataToRender;
+        if (viewType === 'averaged') {
+          dataToRender = attentionData;
+        } else {
+          const headIndex = parseInt(viewType); // Assuming viewType for heads is the index as string
+          dataToRender = attentionDataPerHead[headIndex] || []; // Safeguard against undefined
+        }
+      
+      // // Ensure dataToRender is not empty and contains arrays before proceeding
+      // if (dataToRender.length > 0 && Array.isArray(dataToRender[0])) {
+      //   const flatData = dataToRender[0].flat();
+      //   const minValue = Math.min(...flatData);
+      //   const maxValue = Math.max(...flatData);
+      //   colorScale.domain([minValue, maxValue]);
+      // }
+
       // Rectangles for heatmap
       svg.selectAll(null)
-        .data(attentionData[0].flat())
+        .data(dataToRender[0].flat())
         .enter()
         .append('rect')
         .attr('x', (d, i) => xScale(formattedTokens[i % formattedTokens.length]))
@@ -118,9 +136,9 @@ const AttentionHeatmap = () => {
         });
   
     if (showWeights) {
-        // Text labels
+      // Text labels
       svg.selectAll(null)
-        .data(attentionData[0].flat())
+        .data(dataToRender[0].flat())
         .enter()
         .append("text")
         .text(d => d.toFixed(2))
@@ -128,7 +146,7 @@ const AttentionHeatmap = () => {
         .attr("y", (d, i) => yScale(formattedTokens[Math.floor(i / formattedTokens.length)]) + yScale.bandwidth() / 2)
         .attr("dy", ".35em")
         .attr("text-anchor", "middle")
-        .style("fill", d => d > 0.99 ? "black" : "white")
+        .style("fill", d => d > 0.9 ? "black" : "white")
       .style("font-size", "10px");
       }
 
@@ -149,7 +167,7 @@ const AttentionHeatmap = () => {
       .call(yAxis);
 
   }
-}, [attentionData, tokens, showWeights]);
+}, [attentionData, attentionDataPerHead, tokens, viewType, showWeights]);
                
   return (
     <Box p={2}>
@@ -194,10 +212,10 @@ const AttentionHeatmap = () => {
               label="View Attention Head" 
             >
               <MenuItem value="averaged">Averaged Attention</MenuItem>
-              {Array.isArray(attentionData[0]) && attentionData.map((_, index) => (
-                <MenuItem key={`head${index}`} value={`head${index + 1}`}>{`Head ${index + 1}`}</MenuItem>
-              ))}
-            </Select>
+              {[...Array(12)].map((_, index) => (
+                <MenuItem key={`head${index}`} value={index}>{`Head ${index + 1}`}</MenuItem>
+              ))}            
+          </Select>
           </FormControl>
           <Grid item xs={12}>
           <FormControlLabel

@@ -68,26 +68,33 @@ def next_word_prob():
 def gpt2_attention_insights():
     data = request.get_json()
     text = data.get('text', '')
-    average_heads = data.get('averageHeads', True)
 
     if text:
         inputs = gpt2_tokenizer.encode_plus(text, return_tensors='pt', add_special_tokens=True)
-        token_ids = inputs['input_ids'].tolist()[0] # Convert tensor to list
+        token_ids = inputs['input_ids'].tolist()[0]  # Convert tensor to list
         tokens = gpt2_tokenizer.convert_ids_to_tokens(token_ids)
 
         with torch.no_grad():
             outputs = gpt2_model(**inputs, output_attentions=True)
 
         attentions = outputs.attentions
-        all_attentions = []
-        for layer_attention in attentions:
-            if average_heads:
-                averaged_attention = layer_attention.mean(dim=1).squeeze().tolist()
-                all_attentions.append(averaged_attention)
-            else:
-                all_attentions.append(layer_attention.squeeze().tolist())
+        all_attentions_average = []  # This will store the averaged attention across all heads
+        attentions_per_head = []  # This will store the attentions per head
 
-        return jsonify({"attention_matrices": all_attentions, "tokens": tokens})
+        for layer_attention in attentions:
+            # Compute the average across all heads for this layer and add it to the list
+            averaged_attention = layer_attention.mean(dim=1).squeeze().tolist()
+            all_attentions_average.append(averaged_attention)
+
+            # Now, extract attentions for each head individually
+            layer_attentions_per_head = layer_attention.squeeze().permute(1, 0, 2).tolist()  # This changes shape from (num_heads, seq_length, seq_length) to a list where each element is per head
+            attentions_per_head.append(layer_attentions_per_head)
+
+        return jsonify({
+            "attention_matrices_average": all_attentions_average,
+            "attention_matrices_per_head": attentions_per_head,
+            "tokens": tokens
+        })
     else:
         return jsonify({"error": "No text provided"}), 400
             
