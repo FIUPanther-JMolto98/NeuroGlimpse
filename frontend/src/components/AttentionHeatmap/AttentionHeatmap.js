@@ -112,6 +112,14 @@ const AttentionHeatmap = () => {
           dataToRender = attentionDataPerHead[headIndex] || []; // Safeguard against undefined
         }
       
+      // // Ensure dataToRender is not empty and contains arrays before proceeding
+      // if (dataToRender.length > 0 && Array.isArray(dataToRender[0])) {
+      //   const flatData = dataToRender[0].flat();
+      //   const minValue = Math.min(...flatData);
+      //   const maxValue = Math.max(...flatData);
+      //   colorScale.domain([minValue, maxValue]);
+      // }
+
       // Rectangles for heatmap
       svg.selectAll(null)
         .data(dataToRender[0].flat())
