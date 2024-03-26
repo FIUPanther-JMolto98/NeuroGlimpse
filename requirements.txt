@@ -1,9 +1,0 @@
-Flask==3.0.2
-Flask-Cors==4.0.0
-huggingface==0.0.1
-numpy==1.26.4
-transformers==4.37.2
-# Attempt to reduce slug size by discarding GPU-specific libraries
---find-links https://download.pytorch.org/whl/cpu/torch_stable.html
-torch==2.0.1
-gunicorn
