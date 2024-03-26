@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.1bebf46e.css",
+    "main.js": "/static/js/main.53e618d2.js",
+    "static/js/592.d0fe51d4.chunk.js": "/static/js/592.d0fe51d4.chunk.js",
+    "static/media/NeuroGlimpse.svg": "/static/media/NeuroGlimpse.9b3adaa307d01e02fee053febbe3aecc.svg",
+    "index.html": "/index.html",
+    "main.1bebf46e.css.map": "/static/css/main.1bebf46e.css.map",
+    "main.53e618d2.js.map": "/static/js/main.53e618d2.js.map",
+    "592.d0fe51d4.chunk.js.map": "/static/js/592.d0fe51d4.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1bebf46e.css",
+    "static/js/main.53e618d2.js"
+  ]
+}
