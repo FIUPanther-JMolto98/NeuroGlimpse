@@ -5,7 +5,7 @@ import * as d3 from 'd3';
 import { debounce } from 'lodash';
 import { RiOpenaiFill } from "react-icons/ri";
 
-const AttentionHeatmap = () => {
+const AttentionHeatmap = ({ onSizeChange }) => {
   const [inputText, setInputText] = useState('');
   const [selectedModel, setSelectedModel] = useState('GPT2');
   const [attentionData, setAttentionData] = useState([]);
@@ -13,7 +13,7 @@ const AttentionHeatmap = () => {
   const [showWeights, setShowWeights] = useState(true);
   const [tokens, setTokens] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedHeadIndex, setSelectedHeadIndex] = useState(null); // Initially null
+  const [selectedHeadIndex, setSelectedHeadIndex] = useState(null);
 
   const d3Container = useRef(null);
 
@@ -32,21 +32,22 @@ const AttentionHeatmap = () => {
       const response = await axios.post('http://127.0.0.1:5000/gpt2_attention', { text, averageHeads }, { headers: { 'Content-Type': 'application/json' }});
       setAttentionData(response.data.attention_matrices_average || []);
       setAttentionDataPerHead(response.data.attention_matrices_per_head || []);
-      setTokens(response.data.tokens.map(token => token.replace('Ġ', '')) || []);
+      setTokens(response.data.tokens.map(token => token.replace('Ġ', ' ')) || []);
     } catch (error) {
       console.error('Error fetching attention data:', error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const debouncedFetchAttentionData = debounce(fetchAttentionData, 300);
 
   useEffect(() => {
     if (d3Container.current && (attentionData.length > 0 || attentionDataPerHead.length > 0)) {
-      const formattedTokens = tokens.map(token => token.replace('Ġ', '_'));
+      const formattedTokens = tokens.map(token => token.replace('Ġ', ' '));
+      const margin = { top: 20, right: 100, bottom: 50, left: 50 };
       const containerWidth = d3Container.current.offsetWidth * 2;
       const containerHeight = d3Container.current.offsetHeight / 2;
-      const margin = { top: 20, right: 100, bottom: 50, left: 50 };
 
       d3.select(d3Container.current).selectAll("*").remove();
       const svg = d3.select(d3Container.current)
@@ -158,6 +159,9 @@ const AttentionHeatmap = () => {
 
       svg.append("g")
         .call(yAxis);
+      if (onSizeChange) {
+        onSizeChange(containerWidth + margin.left + margin.right, containerHeight*2.5 + margin.top + margin.bottom);
+      }
     }
   }, [attentionData, attentionDataPerHead, tokens, selectedHeadIndex, showWeights]);
 
