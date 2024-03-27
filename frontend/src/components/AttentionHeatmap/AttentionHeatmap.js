@@ -13,7 +13,8 @@ const AttentionHeatmap = () => {
   const [showWeights, setShowWeights] = useState(true);
   const [tokens, setTokens] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [viewType, setViewType] = useState('averaged'); 
+  const [selectedHeadIndex, setSelectedHeadIndex] = useState(null); // Initially null
+
   const d3Container = useRef(null);
 
   const handleInputChange = useCallback((event) => {
@@ -46,26 +47,25 @@ const AttentionHeatmap = () => {
       const containerWidth = d3Container.current.offsetWidth * 2;
       const containerHeight = d3Container.current.offsetHeight / 2;
       const margin = { top: 20, right: 100, bottom: 50, left: 50 };
-  
+
       d3.select(d3Container.current).selectAll("*").remove();
-  
       const svg = d3.select(d3Container.current)
         .append('svg')
         .attr('width', containerWidth + margin.left + margin.right)
         .attr('height', containerHeight + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
-  
+
       const xScale = d3.scaleBand()
         .domain(formattedTokens)
         .range([0, containerWidth])
         .padding(0.05);
-  
+
       const yScale = d3.scaleBand()
         .domain(formattedTokens)
         .range([0, containerHeight])
         .padding(0.05);
-  
+
       const colorScale = d3.scaleSequential(d3.interpolateInferno)
         .domain([0, 1]);
 
@@ -77,48 +77,40 @@ const AttentionHeatmap = () => {
         .attr("y1", "100%")
         .attr("x2", "0%")
         .attr("y2", "0%");
-  
+
       linearGradient.selectAll("stop")
         .data(colorScale.ticks().map((t, i, n) => ({ offset: `${100*i/n.length}%`, color: colorScale(t) })))
         .enter().append("stop")
         .attr("offset", d => d.offset)
         .attr("stop-color", d => d.color);
-  
+
       svg.append('rect')
         .attr('x', containerWidth + margin.right - 30)
         .attr('y', 0)
         .attr('width', 20)
         .attr('height', containerHeight)
         .style("fill", "url(#linear-gradient)");
-  
+
       // Color scale labels
       svg.append("text")
         .attr("x", containerWidth + margin.right - 5)
         .attr("y", containerHeight)
         .attr("dy", ".35em")
         .text("0");
-  
+
       svg.append("text")
         .attr("x", containerWidth + margin.right - 5)
         .attr("y", 0)
         .attr("dy", ".35em")
         .text("1");
- 
-        let dataToRender;
-        if (viewType === 'averaged') {
-          dataToRender = attentionData;
-        } else {
-          const headIndex = parseInt(viewType); // Assuming viewType for heads is the index as string
-          dataToRender = attentionDataPerHead[headIndex] || []; // Safeguard against undefined
-        }
-      
-      // // Ensure dataToRender is not empty and contains arrays before proceeding
-      // if (dataToRender.length > 0 && Array.isArray(dataToRender[0])) {
-      //   const flatData = dataToRender[0].flat();
-      //   const minValue = Math.min(...flatData);
-      //   const maxValue = Math.max(...flatData);
-      //   colorScale.domain([minValue, maxValue]);
-      // }
+
+      let dataToRender;
+      if (selectedHeadIndex === null) {
+        dataToRender = attentionData; // Use averaged attention
+      } else {
+        // Correctly access the attention data for the selected head:
+        dataToRender = attentionDataPerHead.map(layer => layer[selectedHeadIndex]); 
+      }
 
       // Rectangles for heatmap
       svg.selectAll(null)
@@ -133,41 +125,40 @@ const AttentionHeatmap = () => {
           // Ensuring the first element is colored correctly
           return colorScale(d);
         });
-  
-    if (showWeights) {
-      // Text labels
-      svg.selectAll(null)
-        .data(dataToRender[0].flat())
-        .enter()
-        .append("text")
-        .text(d => d.toFixed(2))
-        .attr("x", (d, i) => xScale(formattedTokens[i % formattedTokens.length]) + xScale.bandwidth() / 2)
-        .attr("y", (d, i) => yScale(formattedTokens[Math.floor(i / formattedTokens.length)]) + yScale.bandwidth() / 2)
-        .attr("dy", ".35em")
-        .attr("text-anchor", "middle")
-        .style("fill", d => d > 0.9 ? "black" : "white")
-      .style("font-size", "10px");
+
+      if (showWeights) {
+        // Text labels
+        svg.selectAll(null)
+          .data(dataToRender[0].flat())
+          .enter()
+          .append("text")
+          .text(d => d.toFixed(2))
+          .attr("x", (d, i) => xScale(formattedTokens[i % formattedTokens.length]) + xScale.bandwidth() / 2)
+          .attr("y", (d, i) => yScale(formattedTokens[Math.floor(i / formattedTokens.length)]) + yScale.bandwidth() / 2)
+          .attr("dy", ".35em")
+          .attr("text-anchor", "middle")
+          .style("fill", d => d > 0.9 ? "black" : "white")
+          .style("font-size", "10px");
       }
 
-    // Adding axes to the heatmap
-    const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
-    const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
+      // Adding axes to the heatmap
+      const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
+      const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
 
-    svg.append("g")
-      .attr("transform", `translate(0,${containerHeight})`)
-      .call(xAxis)
-      .selectAll("text")
-      .style("text-anchor", "end")
-      .attr("dx", "-.8em")
-      .attr("dy", ".15em")
-      .attr("transform", "rotate(-65)");
+      svg.append("g")
+        .attr("transform", `translate(0,${containerHeight})`)
+        .call(xAxis)
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)");
 
-    svg.append("g")
-      .call(yAxis);
+      svg.append("g")
+        .call(yAxis);
+    }
+  }, [attentionData, attentionDataPerHead, tokens, selectedHeadIndex, showWeights]);
 
-  }
-}, [attentionData, attentionDataPerHead, tokens, viewType, showWeights]);
-               
   return (
     <Box p={2}>
       <Grid container justifyContent="center" spacing={2}>
@@ -206,28 +197,28 @@ const AttentionHeatmap = () => {
             <InputLabel id="view-attention-head-label">View Attention Head</InputLabel>
             <Select
               labelId="view-attention-head-label"
-              value={viewType}
-              onChange={(e) => setViewType(e.target.value)}
-              label="View Attention Head" 
+              value={selectedHeadIndex === null ? 'averaged' : selectedHeadIndex} // Update value for dropdown
+              onChange={(e) => setSelectedHeadIndex(e.target.value === 'averaged' ? null : parseInt(e.target.value))} // Update state
+              label="View Attention Head"
             >
               <MenuItem value="averaged">Averaged Attention</MenuItem>
               {[...Array(12)].map((_, index) => (
                 <MenuItem key={`head${index}`} value={index}>{`Head ${index + 1}`}</MenuItem>
-              ))}            
-          </Select>
+              ))}
+            </Select>
           </FormControl>
           <Grid item xs={12}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={showWeights}
-                onChange={() => setShowWeights(!showWeights)}
-                name="showWeights"
-              />
-            }
-            label="Show Weights"
-          />
-        </Grid>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={showWeights}
+                  onChange={() => setShowWeights(!showWeights)}
+                  name="showWeights"
+                />
+              }
+              label="Show Weights"
+            />
+          </Grid>
         </Grid>
         {isLoading ? (
           <CircularProgress />
