@@ -1,7 +1,0 @@
-.widgetContainer {
-    border: 2px solid #4A90E2; /* Example blue border */
-    border-radius: 5px; /* Optional: adds rounded corners */
-    background-color: #f0f0f0; /* Optional: background color for the widget */
-    padding: 10px; /* Optional: adds some spacing inside the widget container */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: adds a subtle shadow for depth */
-  }  

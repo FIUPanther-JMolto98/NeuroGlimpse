@@ -137,7 +137,7 @@ const AttentionHeatmap = () => {
           .attr("y", (d, i) => yScale(formattedTokens[Math.floor(i / formattedTokens.length)]) + yScale.bandwidth() / 2)
           .attr("dy", ".35em")
           .attr("text-anchor", "middle")
-          .style("fill", d => d > 0.9 ? "black" : "white")
+          .style("fill", d => d > 0.8 ? "black" : "white")
           .style("font-size", "10px");
       }
 

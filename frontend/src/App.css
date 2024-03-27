@@ -52,10 +52,3 @@
     transform: rotate(360deg);
   }
 }
-
-.widget {
-  outline: 2px solid #4A90E2; /* Example blue outline */
-  position: absolute; /* Needed for manual positioning */
-  background: white;
-  /* Add more styling as necessary */
-}
