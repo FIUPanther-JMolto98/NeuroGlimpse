@@ -85,7 +85,7 @@ const AttentionHeatmap = () => {
         .attr("stop-color", d => d.color);
 
       svg.append('rect')
-        .attr('x', containerWidth + margin.right - 30)
+        .attr('x', containerWidth + margin.right - 70)
         .attr('y', 0)
         .attr('width', 20)
         .attr('height', containerHeight)
@@ -93,16 +93,18 @@ const AttentionHeatmap = () => {
 
       // Color scale labels
       svg.append("text")
-        .attr("x", containerWidth + margin.right - 5)
+        .attr("x", containerWidth + margin.right - 40)
         .attr("y", containerHeight)
         .attr("dy", ".35em")
-        .text("0");
+        .text("0")
+        .style("fill", "white");
 
       svg.append("text")
-        .attr("x", containerWidth + margin.right - 5)
+        .attr("x", containerWidth + margin.right - 40)
         .attr("y", 0)
         .attr("dy", ".35em")
-        .text("1");
+        .text("1")
+        .style("fill", "white");
 
       let dataToRender;
       if (selectedHeadIndex === null) {
