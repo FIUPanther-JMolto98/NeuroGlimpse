@@ -93,15 +93,15 @@ const AttentionHeatmap = () => {
 
       // Color scale labels
       svg.append("text")
-        .attr("x", containerWidth + margin.right - 40)
-        .attr("y", containerHeight)
+        .attr("x", containerWidth + margin.right - 65)
+        .attr("y", containerHeight + margin.top - 10)
         .attr("dy", ".35em")
         .text("0")
         .style("fill", "white");
 
       svg.append("text")
-        .attr("x", containerWidth + margin.right - 40)
-        .attr("y", 0)
+        .attr("x", containerWidth + margin.right - 65)
+        .attr("y", containerHeight - margin.top - 190)
         .attr("dy", ".35em")
         .text("1")
         .style("fill", "white");
