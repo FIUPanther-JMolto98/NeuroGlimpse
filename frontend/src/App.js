@@ -20,6 +20,7 @@ import CounterfactualExplanations from './components/CounterfactualExplanations/
 import DecisionPathVisualization from './components/DecisionPathVisualization/DecisionPathVisualization';
 import AttentionMechanismInsights from './components/AttentionMechanismInsights/AttentionMechanismInsights';
 import AttentionHeatmap from './components/AttentionHeatmap/AttentionHeatmap';
+import WordEmbeddingDistance from './components/WordEmbeddingDistance/WordEmbeddingDistance';
 
 function App() {
   // MANAGE LIGHT/DARK MODE STATE USING A REACT HOOK
@@ -44,6 +45,7 @@ function App() {
           <Route path="/whatif" element={<InteractiveWhatIf />} />
           <Route path="/outputpd" element={<OutputPD />} />
           <Route path="/attnheatmap" element={<AttentionHeatmap />} />
+          <Route path="/wordembedding" element={<WordEmbeddingDistance />} />
         </Routes>
       </Router>
         <div style = {{

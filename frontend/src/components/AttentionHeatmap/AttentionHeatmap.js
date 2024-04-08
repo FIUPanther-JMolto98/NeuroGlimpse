@@ -14,22 +14,14 @@ const AttentionHeatmap = ({ onSizeChange }) => {
   const [tokens, setTokens] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedHeadIndex, setSelectedHeadIndex] = useState(null);
+  const [initialRender, setInitialRender] = useState(true); // State to track initial render
 
   const d3Container = useRef(null);
-
-  const handleInputChange = useCallback((event) => {
-    setInputText(event.target.value);
-    debouncedFetchAttentionData(event.target.value);
-  }, []);
-
-  const handleModelChange = useCallback((event) => {
-    setSelectedModel(event.target.value);
-  }, []);
 
   const fetchAttentionData = async (text, averageHeads = true) => {
     setIsLoading(true);
     try {
-      const response = await axios.post('http://127.0.0.1:5000/gpt2_attention', { text, averageHeads }, { headers: { 'Content-Type': 'application/json' }});
+      const response = await axios.post('http://127.0.0.1:5000/gpt2_attention', { text, averageHeads }, { headers: { 'Content-Type': 'application/json' } });
       setAttentionData(response.data.attention_matrices_average || []);
       setAttentionDataPerHead(response.data.attention_matrices_per_head || []);
       setTokens(response.data.tokens.map(token => token.replace('Ġ', ' ')) || []);
@@ -42,11 +34,20 @@ const AttentionHeatmap = ({ onSizeChange }) => {
 
   const debouncedFetchAttentionData = debounce(fetchAttentionData, 300);
 
+  const handleInputChange = useCallback((event) => {
+    setInputText(event.target.value);
+    debouncedFetchAttentionData(event.target.value);
+  }, []);
+
+  const handleModelChange = useCallback((event) => {
+    setSelectedModel(event.target.value);
+  }, []);
+
   useEffect(() => {
     if (d3Container.current && (attentionData.length > 0 || attentionDataPerHead.length > 0)) {
       const formattedTokens = tokens.map(token => token.replace('Ġ', ' '));
-      const margin = { top: 20, right: 100, bottom: 50, left: 50 };
-      const containerWidth = d3Container.current.offsetWidth * 2;
+      const margin = { top: 20, right: 100, bottom: 50, left: 80 };
+      const containerWidth = d3Container.current.offsetWidth /2+150;
       const containerHeight = d3Container.current.offsetHeight / 2;
 
       d3.select(d3Container.current).selectAll("*").remove();
@@ -159,81 +160,85 @@ const AttentionHeatmap = ({ onSizeChange }) => {
 
       svg.append("g")
         .call(yAxis);
-      if (onSizeChange) {
-        onSizeChange(containerWidth + margin.left + margin.right, containerHeight*2.5 + margin.top + margin.bottom);
-      }
-    }
-  }, [attentionData, attentionDataPerHead, tokens, selectedHeadIndex, showWeights]);
+      
+        if (initialRender) {
+              onSizeChange(620, 540); // Call with fixed dimensions for the initial render
+              setInitialRender(false); // Update the state to prevent further unnecessary onSizeChange calls
+            }
+          }
+        }, [attentionData, attentionDataPerHead, tokens, selectedHeadIndex, showWeights, initialRender, onSizeChange]);
+  
 
-  return (
-    <Box p={2}>
-      <Grid container justifyContent="center" spacing={2}>
-        <Grid item xs={12}>
-          <TextField
-            label="Enter text"
-            variant="outlined"
-            value={inputText}
-            onChange={handleInputChange}
-            fullWidth
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <FormControl fullWidth>
-            <InputLabel>Model</InputLabel>
-            <Select
-              value={selectedModel}
-              label="Model"
-              onChange={handleModelChange}
-              renderValue={(selected) => (
-                <Box display="flex" alignItems="center">
-                  {selected === 'GPT2' && <RiOpenaiFill style={{ marginRight: 8 }} />}
-                  {selected}
-                </Box>
-              )}
-            >
-              <MenuItem value="GPT2">
-                <Box display="flex" alignItems="center">
-                  <RiOpenaiFill style={{ marginRight: 8 }} />
-                  GPT2
-                </Box>
-              </MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth variant="outlined">
-            <InputLabel id="view-attention-head-label">View Attention Head</InputLabel>
-            <Select
-              labelId="view-attention-head-label"
-              value={selectedHeadIndex === null ? 'averaged' : selectedHeadIndex} // Update value for dropdown
-              onChange={(e) => setSelectedHeadIndex(e.target.value === 'averaged' ? null : parseInt(e.target.value))} // Update state
-              label="View Attention Head"
-            >
-              <MenuItem value="averaged">Averaged Attention</MenuItem>
-              {[...Array(12)].map((_, index) => (
-                <MenuItem key={`head${index}`} value={index}>{`Head ${index + 1}`}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Grid item xs={12}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={showWeights}
-                  onChange={() => setShowWeights(!showWeights)}
-                  name="showWeights"
+        return (
+          <Box p={2}>
+            <Grid container justifyContent="center" spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  label="Enter text"
+                  variant="outlined"
+                  value={inputText}
+                  onChange={handleInputChange}
+                  fullWidth
                 />
-              }
-              label="Show Weights"
-            />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel>Model</InputLabel>
+                  <Select
+                    value={selectedModel}
+                    label="Model"
+                    onChange={handleModelChange}
+                    renderValue={(selected) => (
+                      <Box display="flex" alignItems="center">
+                        {selected === 'GPT2' && <RiOpenaiFill style={{ marginRight: 8 }} />}
+                        {selected}
+                      </Box>
+                    )}
+                  >
+                    <MenuItem value="GPT2">
+                      <Box display="flex" alignItems="center">
+                        <RiOpenaiFill style={{ marginRight: 8 }} />
+                        GPT2
+                      </Box>
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth variant="outlined">
+                  <InputLabel id="view-attention-head-label">View Attention Head</InputLabel>
+                  <Select
+                    labelId="view-attention-head-label"
+                    value={selectedHeadIndex === null ? 'averaged' : selectedHeadIndex}
+                    onChange={(e) => setSelectedHeadIndex(e.target.value === 'averaged' ? null : parseInt(e.target.value))}
+                    label="View Attention Head"
+                  >
+                    <MenuItem value="averaged">Averaged Attention</MenuItem>
+                    {[...Array(12)].map((_, index) => (
+                      <MenuItem key={`head${index}`} value={index}>{`Head ${index + 1}`}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={showWeights}
+                    onChange={() => setShowWeights(!showWeights)}
+                    name="showWeights"
+                  />
+                }
+                label="Show Weights"
+              />
+            </Grid>
           </Grid>
+          {isLoading ? (
+            <CircularProgress />
+          ) : (
+            <div ref={d3Container} style={{ width: '100%', height: '400px' }} />
+          )}
         </Grid>
-        {isLoading ? (
-          <CircularProgress />
-        ) : (
-          <div ref={d3Container} style={{ width: '100%', height: '400px' }} />
-        )}
-      </Grid>
-    </Box>
-  );
-};
+      </Box>
+    );
+  };
 
-export default AttentionHeatmap;
+  export default AttentionHeatmap;

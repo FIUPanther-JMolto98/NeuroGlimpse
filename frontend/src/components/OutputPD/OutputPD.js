@@ -154,14 +154,14 @@ return (
         onChange={handleModelChange}
         renderValue={(selected) => (
           <Box display="flex" alignItems="center">
-            {selected === 'GPT2' && <RiOpenaiFill />}
+            {selected === 'GPT2' && <RiOpenaiFill style={{ marginRight: 8 }} />}
             {selected}
           </Box>
         )}
       >
         <MenuItem value="GPT2">
           <Box display="flex" alignItems="center">
-            <RiOpenaiFill />
+            <RiOpenaiFill style={{ marginRight: 8 }} />
             GPT2
           </Box>
         </MenuItem>
