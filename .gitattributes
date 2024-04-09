@@ -1,3 +1,2 @@
 *.pack filter=lfs diff=lfs merge=lfs -text
 *.bin filter=lfs diff=lfs merge=lfs -text
-backend/GoogleNews-vectors-negative300.bin filter=lfs diff=lfs merge=lfs -text
