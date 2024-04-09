@@ -1,3 +1,4 @@
 node_modules
 .envbackend/GoogleNews-vectors-negative300.bin
 backend/GoogleNews-vectors-negative300.bin
+backend/.env
