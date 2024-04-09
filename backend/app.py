@@ -156,6 +156,40 @@ def word_embedding_distance():
 
     return jsonify({"embedding_data": embedding_data})
 
+import re
+
+@app.route('/word_embedding_arithmetic', methods=['POST'])
+def word_embedding_arithmetic():
+    data = request.get_json()
+    expression = data.get('expression', '')
+    if not expression:
+        return jsonify({"error": "No expression provided"}), 400
+    try:
+        # Use regular expressions to extract words and operators
+        words = re.findall(r'\w+', expression)
+        operators = re.findall(r'[\+\-]', expression)
+        if len(words) < 2 or len(operators) != len(words) - 1:
+            raise ValueError("Invalid expression format")
+        result_vec = None
+        for i in range(len(words)):
+            word = words[i]
+            vec = word2vec_model[word] if word in word2vec_model else None
+            if vec is None:
+                return jsonify({"error": f"Word '{word}' not found in the model"}), 400
+            if i == 0:
+                result_vec = vec.copy()  # Create a copy of the vector
+            else:
+                op = operators[i - 1]
+                if op == '+':
+                    result_vec += vec
+                elif op == '-':
+                    result_vec -= vec
+        top_similarities = word2vec_model.most_similar(positive=[result_vec], topn=10)
+        result_words = [{"word": word, "similarity": float(similarity)} for word, similarity in top_similarities]
+        return jsonify({"result_words": result_words})
+    except (ValueError, KeyError) as e:
+        return jsonify({"error": str(e)}), 400
+                                    
 @app.route('/analyze_text', methods=['POST'])
 def analyze_text():
     data = request.get_json()

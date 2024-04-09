@@ -34,9 +34,9 @@ const Dashboard = () => {
     <GridLayout
       className="layout"
       layout={layout}
-      cols={12}
+      cols={25}
       rowHeight={30} // Adjust for desired height
-      width={1200}
+      width={1920}
       margin={[30, 30]} // Increased space between widgets
       draggableHandle=".draggable-area"
       isResizable={false} // Disable resizing

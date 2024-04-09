@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, TextField, CircularProgress, Grid, Typography } from '@mui/material';
+import { Box, TextField, CircularProgress, Grid, Typography, Button } from '@mui/material';
 import axios from 'axios';
 import * as d3 from 'd3';
 
@@ -8,14 +8,20 @@ const WordEmbeddingDistance = ({ onSizeChange }) => {
   const [embeddingData, setEmbeddingData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hoveredWord, setHoveredWord] = useState(null);
-  const [hoveredPosition, setHoveredPosition] = useState({ x: 0, y: 0 });
+  const [arithmeticExpression, setArithmeticExpression] = useState('');
+  const [arithmeticResult, setArithmeticResult] = useState([]);
+  const [activeVisualization, setActiveVisualization] = useState('embedding');
   const d3Container = useRef(null);
+  const tooltipRef = useRef(null);
+
+  const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
   const fetchEmbeddingData = async (text) => {
     setIsLoading(true);
     try {
       const response = await axios.post('http://127.0.0.1:5000/word_embedding_distance', { text }, { headers: { 'Content-Type': 'application/json' } });
       setEmbeddingData(response.data.embedding_data || []);
+      setActiveVisualization('embedding');
     } catch (error) {
       console.error('Error fetching embedding data:', error);
     } finally {
@@ -26,13 +32,28 @@ const WordEmbeddingDistance = ({ onSizeChange }) => {
   const handleInputChange = (event) => {
     const text = event.target.value;
     setInputText(text);
-    if (text.trim().split(' ').length <= 10) {
+    if (text.trim() === '') {
+      setEmbeddingData([]);
+    } else if (text.trim().split(' ').length <= 10) {
       fetchEmbeddingData(text);
     }
   };
 
+  const handleArithmeticExpression = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/word_embedding_arithmetic', { expression: arithmeticExpression }, { headers: { 'Content-Type': 'application/json' } });
+      setArithmeticResult(response.data.result_words || []);
+      setActiveVisualization('arithmetic');
+    } catch (error) {
+      console.error('Error performing embedding arithmetic:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if (d3Container.current) {
+    if (d3Container.current && activeVisualization === 'embedding' && embeddingData.length > 0) {
       const margin = { top: 20, right: 20, bottom: 30, left: 40 };
       const width = 500 - margin.left - margin.right;
       const height = 400 - margin.top - margin.bottom;
@@ -45,159 +66,145 @@ const WordEmbeddingDistance = ({ onSizeChange }) => {
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
       const xScale = d3.scaleLinear()
+        .domain(d3.extent(embeddingData, d => d.x))
         .range([0, width]);
 
       const yScale = d3.scaleLinear()
+        .domain(d3.extent(embeddingData, d => d.y))
         .range([height, 0]);
 
-      const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-
-      const xAxis = d3.axisBottom(xScale);
-      const yAxis = d3.axisLeft(yScale);
-
       svg.append("g")
+        .attr("class", "x-axis")
         .attr("transform", `translate(0,${height})`)
-        .call(xAxis);
+        .call(d3.axisBottom(xScale));
 
       svg.append("g")
-        .call(yAxis);
+        .attr("class", "y-axis")
+        .call(d3.axisLeft(yScale));
 
-      const updateVisualization = () => {
-        xScale.domain(d3.extent(embeddingData, d => d.x));
-        yScale.domain(d3.extent(embeddingData, d => d.y));
+      const validData = embeddingData.filter(d => d.word && typeof d.x === 'number' && typeof d.y === 'number');
 
-        svg.selectAll(".line").remove();
-        svg.selectAll(".dot").remove();
-        svg.selectAll(".label").remove();
+      validData.forEach((d, i) => {
+        validData.forEach((e, j) => {
+          if (i !== j) {
+            svg.append("line")
+              .attr("x1", xScale(d.x))
+              .attr("y1", yScale(d.y))
+              .attr("x2", xScale(e.x))
+              .attr("y2", yScale(e.y))
+              .attr("stroke", "#ffffff1a")
+              .attr("stroke-opacity", 0.5);
+          }
+        });
+      });
 
-        svg.selectAll(".line")
-          .data(embeddingData.filter(d => d.word1 && d.word2))
-          .enter()
-          .append("line")
-          .attr("x1", d => xScale(embeddingData.find(e => e.word === d.word1).x))
-          .attr("y1", d => yScale(embeddingData.find(e => e.word === d.word1).y))
-          .attr("x2", d => xScale(embeddingData.find(e => e.word === d.word2).x))
-          .attr("y2", d => yScale(embeddingData.find(e => e.word === d.word2).y))
-          .attr("stroke", "gray")
-          .attr("stroke-width", 1);
+      const dots = svg.selectAll(".dot").data(validData, d => d.word);
 
-        svg.selectAll(".dot")
-          .data(embeddingData.filter(d => d.word))
-          .enter()
-          .append("circle")
-          .attr("class", "dot")
-          .attr("cx", d => xScale(d.x))
-          .attr("cy", d => yScale(d.y))
-          .attr("r", 5)
-          .style("fill", (d, i) => colorScale(i))
-          .style("cursor", "pointer")
-          .on("mouseover", (event, d) => {
-            setHoveredWord(d.word);
-            setHoveredPosition({ x: xScale(d.x) + margin.left, y: yScale(d.y) + margin.top });
-          })
-          .on("mouseout", () => {
-            setHoveredWord(null);
-          });
-
-        svg.selectAll(".label")
-          .data(embeddingData.filter(d => d.word))
-          .enter()
-          .append("text")
-          .attr("class", "label")
-          .attr("x", d => xScale(d.x))
-          .attr("y", d => yScale(d.y) - 10)
-          .text(d => d.word)
-          .attr("text-anchor", "middle")
-          .style("font-size", "12px")
-          .style("fill", (d, i) => colorScale(i))
-          .style("pointer-events", "none");
-      };
-
-      updateVisualization();
-
-      onSizeChange(500, 500);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (d3Container.current && embeddingData.length > 0) {
-      const svg = d3.select(d3Container.current).select("svg");
-      const xScale = d3.scaleLinear()
-        .domain(d3.extent(embeddingData, d => d.x))
-        .range([0, 500 - 60]); // Adjust the range based on the container width
-      const yScale = d3.scaleLinear()
-        .domain(d3.extent(embeddingData, d => d.y))
-        .range([400 - 50, 0]); // Adjust the range based on the container height
-
-      svg.selectAll(".line").remove();
-      svg.selectAll(".dot").remove();
-      svg.selectAll(".label").remove();
-
-      svg.selectAll(".line")
-        .data(embeddingData.filter(d => d.word1 && d.word2))
-        .enter()
-        .append("line")
-        .attr("x1", d => xScale(embeddingData.find(e => e.word === d.word1).x))
-        .attr("y1", d => yScale(embeddingData.find(e => e.word === d.word1).y))
-        .attr("x2", d => xScale(embeddingData.find(e => e.word === d.word2).x))
-        .attr("y2", d => yScale(embeddingData.find(e => e.word === d.word2).y))
-        .attr("stroke", "gray")
-        .attr("stroke-width", 1);
-
-      svg.selectAll(".dot")
-        .data(embeddingData.filter(d => d.word))
-        .enter()
-        .append("circle")
-        .attr("class", "dot")
+      dots.enter().append("circle")
         .attr("cx", d => xScale(d.x))
         .attr("cy", d => yScale(d.y))
         .attr("r", 5)
         .style("fill", (d, i) => colorScale(i))
-        .style("cursor", "pointer")
         .on("mouseover", (event, d) => {
           setHoveredWord(d.word);
-          setHoveredPosition({ x: xScale(d.x) + 40, y: yScale(d.y) + 20 }); // Adjust the position
+          const tooltipDiv = d3.select(tooltipRef.current);
+          const [x, y] = d3.pointer(event);
+          tooltipDiv.style("left", `${x - 25}px`)
+                    .style("top", `${y + 50}px`)
+                    .style("display", "block")
+                    .style("max-width", "300px")
+                    .style("white-space", "nowrap");
+
+          const relevantEntries = embeddingData.filter(data => data.word1 === d.word || data.word2 === d.word);
+
+          const tooltipContent = relevantEntries
+            .sort((a, b) => b.similarity - a.similarity)
+            .map(data => {
+              const targetWord = data.word1 === d.word ? data.word2 : data.word1;
+              const similarity = data.similarity;
+              const color = similarity >= 0.75 ? '#92ff92' : similarity >= 0.5 ? '#fff892' : '#ff9292';
+              const similarityString = typeof similarity === 'number' ? similarity.toFixed(2) : 'N/A';
+              return `<div>
+                <span style="color: ${colorScale(validData.findIndex(d => d.word === targetWord))}">&#9679;</span>
+                ${targetWord} <span style="color: ${color}">${similarityString}</span>
+              </div>`;
+            })
+            .join('');
+
+          tooltipDiv.html(`<strong><center>${d.word}:</center></strong>${tooltipContent}`)
+                    .style('background-color', 'rgba(0, 0, 0, 0.8)')
+                    .style('color', 'white')
+                    .style('border-radius', '4px')
+                    .style('padding', '8px');
         })
         .on("mouseout", () => {
           setHoveredWord(null);
+          d3.select(tooltipRef.current).style("display", "none");
         });
 
-      svg.selectAll(".label")
-        .data(embeddingData.filter(d => d.word))
-        .enter()
-        .append("text")
-        .attr("class", "label")
-        .attr("x", d => xScale(d.x))
-        .attr("y", d => yScale(d.y) - 10)
-        .text(d => d.word)
-        .attr("text-anchor", "middle")
-        .style("font-size", "12px")
-        .style("fill", (d, i) => colorScale(i))
-        .style("pointer-events", "none");
-    }
-  }, [embeddingData]);
+      const labels = svg.selectAll(".label")
+        .data(validData, d => d.word);
 
-  const getSimilarityColor = (similarity) => {
-    const value = similarity * 120; // Map similarity to a value between 0 and 120
-    const hue = Math.min(value, 120); // Clamp the hue to a maximum of 120 (green)
-    return `hsl(${hue}, 100%, 50%)`; // Return the color in HSL format
-  };
+      labels.enter().append("text")
+          .attr("x", d => xScale(d.x))
+          .attr("y", d => yScale(d.y) - 10)
+          .text(d => d.word)
+          .style("font-size", "12px")
+          .style("fill", (d, i) => colorScale(i))
+          .attr("text-anchor", "middle");
 
-  const renderSimilarityScores = (word) => {
-    const similarities = embeddingData
-      .filter(d => d.word1 === word || d.word2 === word)
-      .map(d => {
-        const otherWord = d.word1 === word ? d.word2 : d.word1;
-        const color = getSimilarityColor(d.similarity);
-        return (
-          <Typography key={otherWord} variant="body2" style={{ marginBottom: '4px' }}>
-            <span style={{ color: color, marginRight: '4px' }}>•</span>
-            {otherWord}: <span style={{ color }}>{d.similarity.toFixed(2)}</span>
-          </Typography>
-        );
-      });
-    return similarities;
-  };
+      dots.exit().remove();
+      labels.exit().remove();
+
+      onSizeChange(500, 625);
+    } 
+}, [embeddingData, activeVisualization]);  
+  useEffect(() => {
+    if (d3Container.current && activeVisualization === 'arithmetic' && arithmeticResult.length > 0) {
+        const margin = { top: 40, right: 20, bottom: 20, left: 100 },
+                width = 500 - margin.left - margin.right,
+                height = 400 - margin.top - margin.bottom;
+
+        const svg = d3.select(d3Container.current)
+            .append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleLinear()
+            .domain([0, d3.max(arithmeticResult, d => d.similarity)])
+            .range([0, width]);
+
+        const y = d3.scaleBand()
+            .range([0, height])
+            .domain(arithmeticResult.map(d => d.word))
+            .padding(0.1);
+
+        const colorScale = d3.scaleLinear()
+            .domain([0, 0.5, 1])
+            .range(["#ff0000", "#ffff00", "#00ff00"]);
+
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+        svg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(x));
+
+        svg.selectAll(".bar")
+            .data(arithmeticResult)
+            .enter().append("rect")
+            .attr("class", "bar")
+            .attr("y", d => y(d.word))
+            .attr("height", y.bandwidth())
+            .attr("x", 0)
+            .attr("width", d => x(d.similarity))
+            .attr("fill", d => colorScale(d.similarity));
+
+        onSizeChange(500, 625);
+        }
+    }, [arithmeticResult, activeVisualization]);
 
   return (
     <Box p={2}>
@@ -211,28 +218,38 @@ const WordEmbeddingDistance = ({ onSizeChange }) => {
             fullWidth
           />
         </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label="Enter arithmetic expression (e.g., woman + king - man)"
+            variant="outlined"
+            value={arithmeticExpression}
+            onChange={(e) => setArithmeticExpression(e.target.value)}
+            fullWidth
+          />
+          <Button variant="contained" color="primary" onClick={handleArithmeticExpression} disabled={!arithmeticExpression}>
+            Calculate
+          </Button>
+        </Grid>
         {isLoading ? (
           <CircularProgress />
         ) : (
-          <div ref={d3Container} style={{ width: '100%', height: '500px', position: 'relative' }}>
-            {hoveredWord && (
-              <Box
-                style={{
-                  position: 'absolute',
-                  zIndex: 12,
-                  left: hoveredPosition.x + 10,
-                  top: hoveredPosition.y,
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  padding: '8px',
-                }}
-              >
-                <Typography variant="subtitle1" style={{ marginBottom: '8px' }}>
-                  {hoveredWord}
-                </Typography>
-                {renderSimilarityScores(hoveredWord)}
-              </Box>
+          <div style={{ position: 'relative', width: '100%', height: '500px' }}>
+            {activeVisualization === 'embedding' && (
+              <>
+                <div ref={d3Container} style={{ width: '100%', height: '100%' }}></div>
+                <Box
+                  ref={tooltipRef}
+                  style={{
+                    display: 'none',
+                    position: 'absolute',
+                    zIndex: 10,
+                    pointerEvents: 'none',
+                  }}
+                ></Box>
+              </>
+            )}
+            {activeVisualization === 'arithmetic' && (
+              <div ref={d3Container} style={{ width: '100%', height: '100%' }}></div>
             )}
           </div>
         )}
