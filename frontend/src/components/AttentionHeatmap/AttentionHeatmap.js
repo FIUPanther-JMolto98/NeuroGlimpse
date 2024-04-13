@@ -4,6 +4,7 @@ import axios from 'axios';
 import * as d3 from 'd3';
 import { debounce } from 'lodash';
 import { RiOpenaiFill } from "react-icons/ri";
+import { FaGoogle } from "react-icons/fa";
 
 const AttentionHeatmap = ({ onSizeChange }) => {
   const [inputText, setInputText] = useState('');
@@ -18,10 +19,11 @@ const AttentionHeatmap = ({ onSizeChange }) => {
 
   const d3Container = useRef(null);
 
-  const fetchAttentionData = async (text, averageHeads = true) => {
+  const fetchAttentionData = async (text, model) => {
     setIsLoading(true);
     try {
-      const response = await axios.post('http://127.0.0.1:5000/gpt2_attention', { text, averageHeads }, { headers: { 'Content-Type': 'application/json' } });
+      const endpoint = model === 'GPT2' ? 'gpt2_attention' : 'bert_attention';
+      const response = await axios.post(`http://127.0.0.1:5000/${endpoint}`, { text }, { headers: { 'Content-Type': 'application/json' } });
       setAttentionData(response.data.attention_matrices_average || []);
       setAttentionDataPerHead(response.data.attention_matrices_per_head || []);
       setTokens(response.data.tokens.map(token => token.replace('Ġ', ' ')) || []);
@@ -35,17 +37,25 @@ const AttentionHeatmap = ({ onSizeChange }) => {
   const debouncedFetchAttentionData = debounce(fetchAttentionData, 300);
 
   const handleInputChange = useCallback((event) => {
-    setInputText(event.target.value);
-    debouncedFetchAttentionData(event.target.value);
-  }, []);
-
-  const handleModelChange = useCallback((event) => {
-    setSelectedModel(event.target.value);
-  }, []);
+    const text = event.target.value;
+    setInputText(text);
+    debouncedFetchAttentionData(text, selectedModel);
+  }, [selectedModel]);
+  
+const handleModelChange = useCallback((event) => {
+  const selectedModel = event.target.value;
+  setSelectedModel(selectedModel);
+  debouncedFetchAttentionData(inputText, selectedModel);
+}, [inputText]);
 
   useEffect(() => {
     if (d3Container.current && (attentionData.length > 0 || attentionDataPerHead.length > 0)) {
       const formattedTokens = tokens.map(token => token.replace('Ġ', ' '));
+      console.log('Formatted Tokens:', formattedTokens);
+      console.log('Attention Data:', attentionData);
+      console.log('Attention Data Per Head:', attentionDataPerHead);
+      console.log('Selected Head Index:', selectedHeadIndex);
+      console.log('Show Weights:', showWeights);
       const margin = { top: 20, right: 100, bottom: 50, left: 80 };
       const containerWidth = d3Container.current.offsetWidth /2+150;
       const containerHeight = d3Container.current.offsetHeight / 2;
@@ -58,13 +68,13 @@ const AttentionHeatmap = ({ onSizeChange }) => {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-      const xScale = d3.scaleBand()
-        .domain(formattedTokens)
+        const xScale = d3.scaleBand()
+        .domain(Array.from({ length: tokens.length }, (_, i) => i))
         .range([0, containerWidth])
         .padding(0.05);
-
+      
       const yScale = d3.scaleBand()
-        .domain(formattedTokens)
+        .domain(Array.from({ length: tokens.length }, (_, i) => i))
         .range([0, containerHeight])
         .padding(0.05);
 
@@ -115,40 +125,50 @@ const AttentionHeatmap = ({ onSizeChange }) => {
         // Correctly access the attention data for the selected head:
         dataToRender = attentionDataPerHead.map(layer => layer[selectedHeadIndex]); 
       }
-
+      console.log('Data to Render:', dataToRender);
       // Rectangles for heatmap
       svg.selectAll(null)
         .data(dataToRender[0].flat())
         .enter()
         .append('rect')
-        .attr('x', (d, i) => xScale(formattedTokens[i % formattedTokens.length]))
-        .attr('y', (d, i) => yScale(formattedTokens[Math.floor(i / formattedTokens.length)]))
+        .attr('x', (d, i) => xScale(i % tokens.length))
+        .attr('y', (d, i) => yScale(Math.floor(i / tokens.length)))
         .attr('width', xScale.bandwidth())
         .attr('height', yScale.bandwidth())
-        .style('fill', (d, i) => {
-          // Ensuring the first element is colored correctly
-          return colorScale(d);
+        .style('fill', d => colorScale(d))
+        .each((d, i, nodes) => {
+          console.log('Rectangle Data:', d);
+          console.log('Rectangle Index:', i);
+          console.log('Rectangle Node:', nodes[i]);
         });
 
+      // Text labels
       if (showWeights) {
-        // Text labels
         svg.selectAll(null)
           .data(dataToRender[0].flat())
           .enter()
           .append("text")
-          .text(d => d.toFixed(2))
-          .attr("x", (d, i) => xScale(formattedTokens[i % formattedTokens.length]) + xScale.bandwidth() / 2)
-          .attr("y", (d, i) => yScale(formattedTokens[Math.floor(i / formattedTokens.length)]) + yScale.bandwidth() / 2)
+          .text(d => d.toFixed(2)) // display all numbers with 2 decimal places
+          .attr("x", (d, i) => xScale(i % tokens.length) + xScale.bandwidth() / 2)
+          .attr("y", (d, i) => yScale(Math.floor(i / tokens.length)) + yScale.bandwidth() / 2)
           .attr("dy", ".35em")
           .attr("text-anchor", "middle")
           .style("fill", d => d > 0.8 ? "black" : "white")
-          .style("font-size", "10px");
+          .style("font-size", "10px")
+          .each((d, i, nodes) => {
+            console.log('Text Data:', d);
+            console.log('Text Index:', i);
+            console.log('Text Node:', nodes[i]);
+          });
       }
-
       // Adding axes to the heatmap
-      const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
-      const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
+      const xAxis = d3.axisBottom(xScale)
+        .tickFormat((d, i) => tokens[i])
+        .tickSizeOuter(0);
 
+      const yAxis = d3.axisLeft(yScale)
+        .tickFormat((d, i) => tokens[i])
+        .tickSizeOuter(0);
       svg.append("g")
         .attr("transform", `translate(0,${containerHeight})`)
         .call(xAxis)
@@ -191,6 +211,7 @@ const AttentionHeatmap = ({ onSizeChange }) => {
                     renderValue={(selected) => (
                       <Box display="flex" alignItems="center">
                         {selected === 'GPT2' && <RiOpenaiFill style={{ marginRight: 8 }} />}
+                        {selected === 'BERT' && <FaGoogle style={{ marginRight: 8 }} />}
                         {selected}
                       </Box>
                     )}
@@ -199,6 +220,12 @@ const AttentionHeatmap = ({ onSizeChange }) => {
                       <Box display="flex" alignItems="center">
                         <RiOpenaiFill style={{ marginRight: 8 }} />
                         GPT2
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value="BERT">
+                      <Box display="flex" alignItems="center">
+                        <FaGoogle style={{ marginRight: 8 }} />
+                        BERT
                       </Box>
                     </MenuItem>
                   </Select>
@@ -212,10 +239,10 @@ const AttentionHeatmap = ({ onSizeChange }) => {
                     label="View Attention Head"
                   >
                     <MenuItem value="averaged">Averaged Attention</MenuItem>
-                    {[...Array(12)].map((_, index) => (
+                    {/* {[...Array(12)].map((_, index) => (
                       <MenuItem key={`head${index}`} value={index}>{`Head ${index + 1}`}
                   </MenuItem>
-                ))}
+                ))} */}
               </Select>
             </FormControl>
             <Grid item xs={12}>

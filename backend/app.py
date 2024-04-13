@@ -21,8 +21,8 @@ app = Flask(__name__)
 CORS(app)
 
 # Load BERT and GPT-2 models and tokenizers
+bert_model = BertModel.from_pretrained('bert-base-uncased', output_attentions=True)
 bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-bert_model = BertForSequenceClassification.from_pretrained('bert-base-uncased')
 gpt2_fullmodel = GPT2Model.from_pretrained('gpt2', output_hidden_states=True)
 gpt2_tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
 gpt2_model = GPT2LMHeadModel.from_pretrained('gpt2', output_attentions=True)
@@ -37,15 +37,32 @@ def bert_attention_insights():
     text = data.get('text', '')
 
     if text:
-        inputs = bert_tokenizer(text, return_tensors='pt', add_special_tokens=True)
-        outputs = bert_model(**inputs)
-        attentions = outputs.attentions[-1]
+        inputs = bert_tokenizer.encode_plus(text, return_tensors='pt', add_special_tokens=True)
+        with torch.no_grad():
+            outputs = bert_model(**inputs)
 
-        attention_matrix = attentions[0, -1].detach().numpy().tolist()
-        return jsonify({"attention_matrix": attention_matrix})
+        attentions = outputs.attentions
+        all_attentions_average = []
+        attentions_per_head = []
+
+        for layer_attention in attentions:
+            averaged_attention = layer_attention.mean(dim=1).squeeze().tolist()
+            all_attentions_average.append(averaged_attention)
+
+            layer_attentions_per_head = layer_attention.squeeze().permute(1, 0, 2).tolist()
+            attentions_per_head.append(layer_attentions_per_head)
+
+        token_ids = inputs['input_ids'].tolist()[0]
+        tokens = bert_tokenizer.convert_ids_to_tokens(token_ids)
+
+        return jsonify({
+            "attention_matrices_average": all_attentions_average,
+            "attention_matrices_per_head": attentions_per_head,
+            "tokens": tokens
+        })
     else:
         return jsonify({"error": "No text provided"}), 400
-
+    
 @app.route('/gpt2_next_word_prob', methods=['POST'])
 def next_word_prob():
     data = request.get_json()
