@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const HMN_Component = () => {
+const N_Component = () => {
   const [sentenceA, setSentenceA] = useState('');
   const [sentenceB, setSentenceB] = useState('');
   const [layer, setLayer] = useState(2);
@@ -25,7 +25,7 @@ const HMN_Component = () => {
 
   const handleVisualize = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/hm_attention', {
+      const response = await fetch('http://127.0.0.1:5000/n_attention', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,4 +76,4 @@ const HMN_Component = () => {
   );
 };
 
-export default HMN_Component;
+export default N_Component;
