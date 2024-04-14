@@ -47,7 +47,7 @@ def get_attention():
     attention = outputs[-1]  # Output includes attention weights when output_attentions=True
     tokens = bert_tokenizer.convert_ids_to_tokens(inputs[0])
 
-    html_head_view = head_view(attention, tokens, html_action='return', display_mode="dark")
+    html_head_view = head_view(attention, tokens, html_action='return')
     html_model_view = model_view(attention, tokens, html_action='return', display_mode="dark")
 
     response = {

@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 const N_Component = () => {
   const [sentenceA, setSentenceA] = useState('');
   const [sentenceB, setSentenceB] = useState('');
-  const [layer, setLayer] = useState(2);
+  const [layer, setLayer] = useState(0);
   const [head, setHead] = useState(0);
   const [neuronViewHtml, setNeuronViewHtml] = useState('');
+  const iframeRef = useRef(null);
 
   const handleSentenceAChange = (e) => {
     setSentenceA(e.target.value);
@@ -45,9 +46,26 @@ const N_Component = () => {
     }
   };
 
+  const handleIframeLoad = () => {
+    const iframeDocument = iframeRef.current.contentDocument;
+    const bertvizDiv = iframeDocument.querySelector('div[id^="bertviz-"]');
+    console.log(bertvizDiv);
+  
+    if (bertvizDiv) {
+      const styleElement = iframeDocument.createElement('style');
+      styleElement.textContent = `
+        div[id^="bertviz-"] {
+          background-color: transparent !important;
+        }
+      `;
+      iframeDocument.head.appendChild(styleElement);
+    }
+  
+    iframeRef.current.style.border = 'none';
+  };
+  
   return (
     <div>
-      <h2>Neuron View Visualization</h2>
       <div>
         <label>Sentence A:</label>
         <input type="text" value={sentenceA} onChange={handleSentenceAChange} />
@@ -56,20 +74,26 @@ const N_Component = () => {
         <label>Sentence B:</label>
         <input type="text" value={sentenceB} onChange={handleSentenceBChange} />
       </div>
-      <div>
+      {/* <div>
         <label>Layer:</label>
         <input type="number" value={layer} onChange={handleLayerChange} />
       </div>
       <div>
         <label>Head:</label>
         <input type="number" value={head} onChange={handleHeadChange} />
-      </div>
+      </div> */}
       <button onClick={handleVisualize}>Visualize</button>
 
       {neuronViewHtml && (
         <div>
           <h3>Neuron View</h3>
-          <iframe srcDoc={neuronViewHtml} width="100%" height="600px" />
+          <iframe
+            ref={iframeRef}
+            srcDoc={neuronViewHtml}
+            width="100%"
+            height="600px"
+            onLoad={handleIframeLoad}
+          />
         </div>
       )}
     </div>

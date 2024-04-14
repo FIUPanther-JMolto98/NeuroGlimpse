@@ -5,6 +5,7 @@ import OutputPD from '../OutputPD/OutputPD';
 import AttentionHeatmap from '../AttentionHeatmap/AttentionHeatmap';
 import POSTaggingWidget from '../POSTagging/POSTagging';
 import WordEmbeddingDistance from '../WordEmbeddingDistance/WordEmbeddingDistance';
+import NeuronViewWidget from '../HMN_Visualization/NeuronViewWidget';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import './Dashboard.css';
@@ -15,6 +16,7 @@ const Dashboard = () => {
     { i: 'widget1', x: 0, y: 0, w: 2, h: 4 },
     { i: 'widget2', x: 3, y: 0, w: 2, h: 4 },
     { i: 'widget3', x: 6, y: 0, w: 2, h: 4 }, // Adjust 'x', 'y', 'w', 'h' as needed
+    { i: 'widget4', x: 6, y: 2, w: 2, h: 4 },
     // Ensure 'x', 'y', 'w', and 'h' are configured so widgets do not overlap
     // Adjust 'w' and 'h' to control widget size
     // Adjust 'x' and 'y' to position widgets without overlap
@@ -79,6 +81,16 @@ const Dashboard = () => {
           <WordEmbeddingDistance />
         </Widget>
       </div>
+      <div key="widget4">
+        <NeuronViewWidget
+          title="Neuron View"
+          backgroundColor="#ffffff00"
+          borderColor="#43474E"
+          titleBarColor="#7070d800"
+          isMinimized={!!minimizedWidgets['widget4']}
+          onToggle={() => toggleMinimize('widget4')}
+        />
+    </div>
       {/* Repeat for any additional widgets */}
     </GridLayout>
   );

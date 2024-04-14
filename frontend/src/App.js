@@ -21,6 +21,7 @@ import DecisionPathVisualization from './components/DecisionPathVisualization/De
 import AttentionMechanismInsights from './components/AttentionMechanismInsights/AttentionMechanismInsights';
 import AttentionHeatmap from './components/AttentionHeatmap/AttentionHeatmap';
 import WordEmbeddingDistance from './components/WordEmbeddingDistance/WordEmbeddingDistance';
+import HM_Component from './HM_Component';
 import N_Component from './N_Component';
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
           <Route path="/outputpd" element={<OutputPD />} />
           <Route path="/attnheatmap" element={<AttentionHeatmap />} />
           <Route path="/wordembedding" element={<WordEmbeddingDistance />} />
+          <Route path="/hmcomponent" element={<HM_Component />} />
           <Route path="/ncomponent" element={<N_Component />} />
         </Routes>
       </Router>

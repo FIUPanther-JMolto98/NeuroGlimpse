@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Box, TextField, Button, Grid } from '@mui/material';
 
 const N_Component = () => {
   const [sentenceA, setSentenceA] = useState('');
@@ -50,54 +51,64 @@ const N_Component = () => {
     const iframeDocument = iframeRef.current.contentDocument;
     const bertvizDiv = iframeDocument.querySelector('div[id^="bertviz-"]');
     console.log(bertvizDiv);
-  
+
     if (bertvizDiv) {
       const styleElement = iframeDocument.createElement('style');
       styleElement.textContent = `
         div[id^="bertviz-"] {
           background-color: transparent !important;
+          display: flex !important;
+          justify-content: center !important;
+          align-items: center !important;
+          height: 100% !important;
         }
       `;
       iframeDocument.head.appendChild(styleElement);
     }
-  
+
     iframeRef.current.style.border = 'none';
   };
-  
-  return (
-    <div>
-      <h2>Neuron View Visualization</h2>
-      <div>
-        <label>Sentence A:</label>
-        <input type="text" value={sentenceA} onChange={handleSentenceAChange} />
-      </div>
-      <div>
-        <label>Sentence B:</label>
-        <input type="text" value={sentenceB} onChange={handleSentenceBChange} />
-      </div>
-      {/* <div>
-        <label>Layer:</label>
-        <input type="number" value={layer} onChange={handleLayerChange} />
-      </div>
-      <div>
-        <label>Head:</label>
-        <input type="number" value={head} onChange={handleHeadChange} />
-      </div> */}
-      <button onClick={handleVisualize}>Visualize</button>
 
+  return (
+    <Box p={2}>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            label="Sentence A"
+            variant="outlined"
+            value={sentenceA}
+            onChange={handleSentenceAChange}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label="Sentence B"
+            variant="outlined"
+            value={sentenceB}
+            onChange={handleSentenceBChange}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Button variant="contained" color="primary" onClick={handleVisualize} fullWidth>
+            Visualize
+          </Button>
+        </Grid>
+      </Grid>
       {neuronViewHtml && (
-        <div>
-          <h3>Neuron View</h3>
+        <Box mt={2}>
           <iframe
             ref={iframeRef}
             srcDoc={neuronViewHtml}
             width="100%"
             height="600px"
             onLoad={handleIframeLoad}
+            frameBorder="0"
           />
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 
