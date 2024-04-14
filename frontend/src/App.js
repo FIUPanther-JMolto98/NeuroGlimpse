@@ -21,6 +21,7 @@ import DecisionPathVisualization from './components/DecisionPathVisualization/De
 import AttentionMechanismInsights from './components/AttentionMechanismInsights/AttentionMechanismInsights';
 import AttentionHeatmap from './components/AttentionHeatmap/AttentionHeatmap';
 import WordEmbeddingDistance from './components/WordEmbeddingDistance/WordEmbeddingDistance';
+import HMN_Component from './HMN_Component'; 
 
 function App() {
   // MANAGE LIGHT/DARK MODE STATE USING A REACT HOOK
@@ -46,6 +47,7 @@ function App() {
           <Route path="/outputpd" element={<OutputPD />} />
           <Route path="/attnheatmap" element={<AttentionHeatmap />} />
           <Route path="/wordembedding" element={<WordEmbeddingDistance />} />
+          <Route path="/hmncomponent" element={<HMN_Component />} />
         </Routes>
       </Router>
         <div style = {{

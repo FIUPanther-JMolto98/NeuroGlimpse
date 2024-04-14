@@ -46,5 +46,4 @@ const LandingPage = ({ style }) => {
     </div>
   );
 };
-
 export default LandingPage;

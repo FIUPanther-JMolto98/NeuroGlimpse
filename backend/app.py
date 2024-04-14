@@ -5,10 +5,16 @@ import torch
 import torch.nn.functional as F
 import nltk
 import spacy
-from transformers import AutoModelForTokenClassification, pipeline, BertModel, BertTokenizer, BertForSequenceClassification, GPT2Model, GPT2Tokenizer, GPT2LMHeadModel
+from transformers import AutoTokenizer, AutoModel, utils, AutoModelForTokenClassification, pipeline, BertModel, BertTokenizer, BertForSequenceClassification, GPT2Model, GPT2Tokenizer, GPT2LMHeadModel
+from bertviz.transformers_neuron_view import BertModel as BMV
+from bertviz.transformers_neuron_view import BertTokenizer as BTV
+from bertviz import head_view, model_view
+from bertviz.neuron_view import show
 from sklearn.decomposition import PCA
 from sklearn.metrics.pairwise import cosine_similarity
 from gensim.models import KeyedVectors
+import io
+import base64
 
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
@@ -30,6 +36,45 @@ gpt2_model = GPT2LMHeadModel.from_pretrained('gpt2', output_attentions=True)
 @app.route('/')
 def hello_world():
     return 'Hello, World from the Flask 🐍🧪 Backend!'
+
+@app.route('/hm_attention', methods=['POST'])
+def get_attention():
+    data = request.get_json()
+    text = data.get('text', '')
+
+    inputs = bert_tokenizer.encode(text, return_tensors='pt')
+    outputs = bert_model(inputs)
+    attention = outputs[-1]  # Output includes attention weights when output_attentions=True
+    tokens = bert_tokenizer.convert_ids_to_tokens(inputs[0])
+
+    html_head_view = head_view(attention, tokens, html_action='return')
+    html_model_view = model_view(attention, tokens, html_action='return')
+
+    response = {
+        'headView': html_head_view.data,
+        'modelView': html_model_view.data,
+        'tokens': tokens
+    }
+
+    return jsonify(response)
+
+@app.route('/n_attention', methods=['POST'])
+def get_neuron_attention():
+    model = BMV.from_pretrained('bert-base-uncased', output_attentions=True)
+    tokenizer = BTV.from_pretrained('bert-base-uncased', do_lower_case=True)
+    data = request.get_json()
+    sentence_a = data.get('sentence_a', '')
+    sentence_b = data.get('sentence_b', '')
+    layer = data.get('layer', 2)
+    head = data.get('head', 0)
+
+    html_neuron_view = show(model, 'bert', tokenizer, sentence_a, sentence_b, layer=layer, head=head, html_action='return')
+
+    response = {
+        'neuronView': html_neuron_view.data
+    }
+
+    return jsonify(response)
 
 @app.route('/bert_attention', methods=['POST'])
 def bert_attention_insights():
@@ -63,6 +108,41 @@ def bert_attention_insights():
     else:
         return jsonify({"error": "No text provided"}), 400
     
+@app.route('/bert_visualization', methods=['POST'])
+def bert_visualization():
+    data = request.get_json()
+    text = data.get('text', '')
+
+    if text:
+        # Load BERT model and tokenizer using bertviz
+        model_version = 'bert-base-uncased'
+        model = BMV.from_pretrained(model_version, output_attentions=True)
+        tokenizer = BTV.from_pretrained(model_version)
+
+        # Tokenize the input text
+        tokens = tokenizer.tokenize(text)
+        token_ids = tokenizer.convert_tokens_to_ids(tokens)
+        input_ids = torch.tensor([token_ids])
+        token_type_ids = torch.zeros_like(input_ids)
+
+        # Get the attention weights and hidden states
+        with torch.no_grad():
+            outputs = model(input_ids, token_type_ids=token_type_ids)
+            attention = outputs[-1]  # Access attention weights from the last element of the tuple
+            hidden_states = outputs[2]  # Access hidden states from the third element of the tuple
+
+        # Generate visualizations using bertviz
+        head_view_html = show(attention, tokens, tokenizer, text, display_mode='html')
+        model_view_html = show(hidden_states, tokens, tokenizer, text, display_mode='html')
+        neuron_view_html = show(hidden_states, tokens, tokenizer, text, display_mode='html')
+
+        # Return the rendered visualizations as JSON
+        return jsonify({
+            'head_view': head_view_html,
+            'model_view': model_view_html,
+            'neuron_view': neuron_view_html
+        })
+                        
 @app.route('/gpt2_next_word_prob', methods=['POST'])
 def next_word_prob():
     data = request.get_json()
@@ -207,61 +287,5 @@ def word_embedding_arithmetic():
     except (ValueError, KeyError) as e:
         return jsonify({"error": str(e)}), 400
                                     
-@app.route('/analyze_text', methods=['POST'])
-def analyze_text():
-    data = request.get_json()
-    text = data.get('text', '')
-
-    if not text:
-        return jsonify({"error": "No text provided"}), 400
-
-    # Perform NER
-    ner_results = ner_pipeline(text)
-    ner_entities = [{"entity": result['entity'], "word": result['word'], "score": float(result['score'])} for result in ner_results]
-
-    # Perform POS tagging with spaCy
-    doc = nlp(text)
-    pos_tags = [{"word": token.text, "pos": token.pos_} for token in doc]
-
-    return jsonify({"entities": ner_entities, "pos_tags": pos_tags})
-
-@app.route('/pca_activations', methods=['POST'])
-def pca_activations():
-    data = request.get_json()
-    text = data.get('text', '')
-
-    if not text:
-        return jsonify({"error": "No text provided"}), 400
-
-    # Tokenize input text using GPT-2 tokenizer
-    inputs = gpt2_tokenizer(text, return_tensors='pt')
-
-    # Disable gradient calculation for efficiency
-    with torch.no_grad():
-        # Get model outputs from GPT-2 (ensure using gpt2_fullmodel with output_hidden_states=True)
-        outputs = gpt2_fullmodel(**inputs)
-    
-    # Extract hidden states
-    # outputs.hidden_states is a tuple of length (num_layers + 1), with each element having shape (batch_size, sequence_length, hidden_size)
-    hidden_states = outputs.hidden_states
-
-    # Ensure we have hidden states; otherwise, return an error
-    if hidden_states is None:
-        return jsonify({"error": "Model did not return hidden states"}), 500
-
-    # Concatenate hidden states across all layers to form a single tensor
-    # Shape after concatenation: (num_layers, sequence_length * hidden_size)
-    # Note: We're concatenating along the feature dimension for PCA, which is a slight deviation from the previous mean approach
-    activations = torch.cat([layer.squeeze(0) for layer in hidden_states[1:]], dim=-1).numpy()  # Excluding the initial embeddings layer
-
-    # Apply PCA to reduce dimensions to 3
-    pca = PCA(n_components=3)
-    reduced_activations = pca.fit_transform(activations)  # Shape: (num_layers, 3)
-
-    # Prepare data for JSON response
-    pca_data = [{"layer": idx+1, "pc1": float(pc[0]), "pc2": float(pc[1]), "pc3": float(pc[2])} for idx, pc in enumerate(reduced_activations)]
-
-    return jsonify(pca_data)
-
 if __name__ == '__main__':
     app.run(debug=True)
