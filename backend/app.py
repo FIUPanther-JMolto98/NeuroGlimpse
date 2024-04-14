@@ -1,3 +1,5 @@
+import gensim.downloader as api
+from gensim.models import KeyedVectors
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
@@ -8,14 +10,12 @@ import spacy
 from transformers import AutoModelForTokenClassification, pipeline, BertModel, BertTokenizer, BertForSequenceClassification, GPT2Model, GPT2Tokenizer, GPT2LMHeadModel
 from sklearn.decomposition import PCA
 from sklearn.metrics.pairwise import cosine_similarity
-from gensim.models import KeyedVectors
 
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
 
 # Load Word2Vec model
-model_name = "GoogleNews-vectors-negative300.bin"
-word2vec_model = KeyedVectors.load_word2vec_format(model_name, binary=True)
+word2vec_model = KeyedVectors.load_word2vec_format(api.load("word2vec-google-news-300", return_path=True), binary=True)
 
 app = Flask(__name__)
 CORS(app)
