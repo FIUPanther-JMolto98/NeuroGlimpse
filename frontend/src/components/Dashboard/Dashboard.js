@@ -14,9 +14,9 @@ const Dashboard = () => {
   // Initial layout configuration to prevent overlap and allow for more space
   const initialLayout = [
     { i: 'widget1', x: 0, y: 0, w: 2, h: 4 },
-    { i: 'widget2', x: 3, y: 0, w: 2, h: 4 },
-    { i: 'widget3', x: 6, y: 0, w: 2, h: 4 }, // Adjust 'x', 'y', 'w', 'h' as needed
-    { i: 'widget4', x: 6, y: 2, w: 2, h: 4 },
+    { i: 'widget2', x: 8, y: 0, w: 2, h: 4 },
+    { i: 'widget3', x: 17, y: 0, w: 2, h: 4 }, // Adjust 'x', 'y', 'w', 'h' as needed
+    { i: 'widget4', x: 6, y: 11, w: 2, h: 4 },
     // Ensure 'x', 'y', 'w', and 'h' are configured so widgets do not overlap
     // Adjust 'w' and 'h' to control widget size
     // Adjust 'x' and 'y' to position widgets without overlap

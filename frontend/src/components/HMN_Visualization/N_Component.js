@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Box, TextField, Button, Grid, FormControl, InputLabel, Select, MenuItem, CircularProgress } from '@mui/material';
 
 const N_Component = () => {
   const [sentenceA, setSentenceA] = useState('');
